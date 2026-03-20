@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/framer-motion/10.16.4/framer-motion.umd.min.js"></script>
     <style>
         :root {
             --apple-blue: #007AFF;
@@ -30,72 +29,90 @@
             color: var(--apple-text);
             transition: background-color 0.5s cubic-bezier(0.28, 0.11, 0.32, 1);
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         .glass-panel {
             background: var(--apple-card);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 122, 255, 0.3);
         }
 
         .timeline-track {
-            height: 6px;
-            background: rgba(134, 134, 139, 0.2);
-            border-radius: 3px;
+            height: 8px;
+            background: rgba(134, 134, 139, 0.15);
+            border-radius: 4px;
             position: relative;
+            cursor: pointer;
         }
 
         .timeline-segment {
             position: absolute;
             height: 100%;
-            border-radius: 3px;
+            border-radius: 4px;
             transition: all 0.3s ease;
         }
 
-        .segment-peak { background: #FF9F0A; box-shadow: 0 0 15px rgba(255, 159, 10, 0.3); }
-        .segment-standard { background: #30D158; box-shadow: 0 0 15px rgba(48, 209, 88, 0.3); }
+        .segment-peak { 
+            background: linear-gradient(90deg, #FF9F0A, #FF375F); 
+            box-shadow: 0 0 20px rgba(255, 159, 10, 0.4); 
+        }
+        
+        .segment-standard { 
+            background: linear-gradient(90deg, #30D158, #32D74B); 
+            box-shadow: 0 0 20px rgba(48, 209, 88, 0.3); 
+        }
 
         .time-marker {
             position: absolute;
-            top: 15px;
+            top: 18px;
             transform: translateX(-50%);
-            font-size: 10px;
+            font-size: 11px;
             color: var(--apple-secondary);
-            font-weight: 500;
+            font-weight: 600;
+            letter-spacing: 0.02em;
         }
 
         .current-time-indicator {
             position: absolute;
-            top: -5px;
-            width: 2px;
-            height: 16px;
-            background: var(--apple-text);
+            top: -6px;
+            width: 3px;
+            height: 20px;
+            background: #007AFF;
+            border-radius: 2px;
             z-index: 10;
             transition: left 0.5s ease;
+            box-shadow: 0 0 10px rgba(0, 122, 255, 0.8);
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 0.5; }
+            0% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.6; }
         }
 
         .pulse-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             background: #FF3B30;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 8px;
-            animation: pulse 2s infinite;
+            margin-right: 10px;
+            animation: pulse 2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
         }
 
         .skeleton {
-            background: linear-gradient(90deg, rgba(134,134,139,0.1) 25%, rgba(134,134,139,0.2) 50%, rgba(134,134,139,0.1) 75%);
+            background: linear-gradient(90deg, rgba(134,134,139,0.05) 25%, rgba(134,134,139,0.1) 50%, rgba(134,134,139,0.05) 75%);
             background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
+            animation: shimmer 2s infinite linear;
         }
 
         @keyframes shimmer {
@@ -104,305 +121,370 @@
         }
 
         .nav-link {
-            transition: all 0.2s ease;
-            opacity: 0.6;
+            transition: all 0.3s ease;
+            opacity: 0.5;
         }
 
-        .nav-link:hover { opacity: 1; transform: translateY(-1px); }
+        .nav-link:hover { opacity: 1; color: var(--apple-blue); }
 
         .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: -0.01em;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
         }
 
         .grid-bg {
-            background-image: radial-gradient(rgba(134, 134, 139, 0.1) 1px, transparent 1px);
+            background-image: radial-gradient(rgba(134, 134, 139, 0.08) 1px, transparent 1px);
             background-size: 40px 40px;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #timeline-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 100;
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
-<body class="dark min-h-screen grid-bg">
-    <!-- Skeleton Loader (Hidden after load) -->
-    <div id="skeleton-screen" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center space-y-8 p-6">
-        <div class="w-24 h-24 rounded-full skeleton"></div>
-        <div class="w-64 h-8 rounded-lg skeleton"></div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl">
-            <div class="h-40 rounded-3xl skeleton"></div>
-            <div class="h-40 rounded-3xl skeleton"></div>
+<body class="dark min-h-screen grid-bg overflow-hidden">
+    <!-- Skeleton Loader -->
+    <div id="skeleton-screen" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-6 transition-opacity duration-500">
+        <div class="w-20 h-20 rounded-3xl skeleton mb-10"></div>
+        <div class="w-80 h-10 rounded-2xl skeleton mb-6"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl">
+            <div class="h-64 rounded-[32px] skeleton"></div>
+            <div class="h-64 rounded-[32px] skeleton"></div>
         </div>
     </div>
 
     <!-- Main Content -->
-    <div id="main-content" class="opacity-0 transition-opacity duration-1000">
+    <div id="main-content" class="opacity-0 transition-all duration-1000 transform translate-y-4">
+        <div id="timeline-tooltip">12:00 PM</div>
+        
         <!-- Navigation -->
-        <nav class="fixed top-0 left-0 right-0 z-40 px-6 py-4 flex justify-between items-center backdrop-blur-md">
-            <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 bg-apple-blue rounded-lg flex items-center justify-center">
-                    <i data-lucide="clock" class="text-white w-5 h-5"></i>
+        <nav class="fixed top-0 left-0 right-0 z-40 px-8 py-6 flex justify-between items-center backdrop-blur-xl border-b border-white/5">
+            <div class="flex items-center space-x-3 group cursor-pointer">
+                <div class="w-10 h-10 bg-apple-blue rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
+                    <i data-lucide="zap" class="text-white w-6 h-6"></i>
                 </div>
-                <span class="font-bold text-lg tracking-tight">Claude 2x</span>
+                <span class="font-bold text-xl tracking-tight">Claude 2x</span>
             </div>
             
-            <div class="flex items-center space-x-6">
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-white/10 transition-colors">
+            <div class="flex items-center space-x-8">
+                <div class="hidden md:flex space-x-8">
+                    <a href="#" class="nav-link text-sm font-semibold">Dashboard</a>
+                    <a href="#" class="nav-link text-sm font-semibold">Timeline</a>
+                    <a href="#" class="nav-link text-sm font-semibold">Analytics</a>
+                </div>
+                <button id="theme-toggle" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
                     <i data-lucide="moon" id="theme-icon" class="w-5 h-5"></i>
                 </button>
-                <div class="hidden md:flex space-x-6">
-                    <a href="#" class="nav-link text-sm font-medium">Dashboard</a>
-                    <a href="#" class="nav-link text-sm font-medium">Timeline</a>
-                    <a href="#" class="nav-link text-sm font-medium">Settings</a>
-                </div>
             </div>
         </nav>
 
-        <main class="pt-32 pb-20 px-6 max-w-6xl mx-auto">
-            <!-- Hero Section -->
-            <div class="text-center mb-16">
-                <motion-div initial="{opacity: 0, y: 20}" animate="{opacity: 1, y: 0}" transition="{duration: 0.8}">
-                    <span class="status-badge bg-orange-500/10 text-orange-500 mb-4 inline-block">
-                        <span class="pulse-dot"></span>PROMOTION ACTIVE
-                    </span>
-                    <h1 class="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
-                        Power through <br><span class="text-apple-blue">the peak hours.</span>
-                    </h1>
-                    <p class="text-xl text-apple-secondary max-w-2xl mx-auto leading-relaxed">
-                        Smart scheduling for your Claude workflow. 2x limits during standard windows, optimized for your timezone.
-                    </p>
-                </motion-div>
+        <main class="pt-36 pb-20 px-8 max-w-6xl mx-auto">
+            <!-- Hero -->
+            <div class="text-center mb-20 fade-in">
+                <span class="status-badge bg-apple-blue/10 text-apple-blue mb-6 inline-flex items-center">
+                    <span class="pulse-dot"></span>Active Session
+                </span>
+                <h1 class="text-6xl md:text-8xl font-bold mb-8 tracking-tighter leading-tight">
+                    Your time, <br><span class="text-apple-blue">optimized.</span>
+                </h1>
+                <p class="text-2xl text-apple-secondary max-w-3xl mx-auto font-medium leading-relaxed">
+                    2x higher capacity during standard windows. <br class="hidden md:block"> Automatically detected for your locale.
+                </p>
             </div>
 
-            <!-- Dashboard Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Status Card -->
-                <div class="lg:col-span-4 glass-panel p-8 flex flex-col justify-between">
+            <!-- Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Status -->
+                <div class="lg:col-span-5 glass-panel p-10 flex flex-col justify-between">
                     <div>
-                        <h3 class="text-sm font-semibold uppercase tracking-wider text-apple-secondary mb-8">Current Status</h3>
-                        <div id="countdown-container" class="space-y-2">
-                            <span id="status-text" class="text-4xl font-bold block">Peak Hours</span>
-                            <span id="timer-display" class="text-6xl font-black tabular-nums tracking-tighter">00:00:00</span>
-                            <p id="sub-status" class="text-apple-secondary text-sm mt-4">Remaining in standard limits</p>
+                        <div class="flex justify-between items-start mb-10">
+                            <div>
+                                <h3 class="text-xs font-bold uppercase tracking-widest text-apple-secondary mb-1">State</h3>
+                                <div id="status-pill" class="inline-flex items-center px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-sm font-bold">
+                                    STANDARD WINDOW
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <h3 class="text-xs font-bold uppercase tracking-widest text-apple-secondary mb-1">Logic</h3>
+                                <p class="text-sm font-bold">IST-SYNC</p>
+                            </div>
+                        </div>
+                        
+                        <div id="countdown-container" class="space-y-4">
+                            <span id="timer-display" class="text-7xl md:text-8xl font-black tabular-nums tracking-tighter block">00:00:00</span>
+                            <div class="flex items-center space-x-3 text-apple-secondary">
+                                <i data-lucide="info" class="w-4 h-4"></i>
+                                <p id="sub-status" class="text-base font-medium">Standard limits active until 5:30 PM</p>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="mt-8 pt-8 border-t border-white/5">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm font-medium">Daily Progress</span>
-                            <span id="progress-percent" class="text-sm text-apple-blue font-bold">68%</span>
+                    <div class="mt-12 pt-10 border-t border-white/5">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-sm font-bold text-apple-secondary">Day Utilization</span>
+                            <span id="progress-percent" class="text-sm text-apple-blue font-black">42%</span>
                         </div>
-                        <div class="h-2 bg-white/5 rounded-full overflow-hidden">
-                            <div id="progress-bar" class="h-full bg-apple-blue transition-all duration-1000" style="width: 68%"></div>
+                        <div class="h-3 bg-white/5 rounded-full overflow-hidden p-0.5">
+                            <div id="progress-bar" class="h-full bg-apple-blue rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(0,122,255,0.4)]" style="width: 42%"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Interactive Timeline -->
-                <div class="lg:col-span-8 glass-panel p-8">
-                    <div class="flex justify-between items-center mb-10">
+                <!-- Timeline -->
+                <div class="lg:col-span-7 glass-panel p-10">
+                    <div class="flex justify-between items-end mb-12">
                         <div>
-                            <h3 class="text-sm font-semibold uppercase tracking-wider text-apple-secondary">Today's Schedule</h3>
-                            <p id="current-date" class="text-lg font-medium mt-1">Monday, March 18</p>
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-apple-secondary mb-2">Timeline</h3>
+                            <p id="current-date" class="text-2xl font-bold">Monday, March 18</p>
                         </div>
-                        <div class="text-right">
-                            <span id="timezone-label" class="text-sm font-bold text-apple-blue bg-apple-blue/10 px-3 py-1 rounded-lg">Asia/Kolkata (IST)</span>
+                        <div id="timezone-badge" class="px-4 py-2 bg-white/5 rounded-2xl border border-white/5 text-sm font-bold flex items-center space-x-2">
+                            <i data-lucide="globe" class="w-4 h-4 text-apple-blue"></i>
+                            <span id="timezone-label">Asia/Kolkata</span>
                         </div>
                     </div>
 
-                    <div class="relative mt-12 mb-20 px-4">
+                    <div class="relative mt-20 mb-28 px-4 group/timeline">
                         <div class="timeline-track" id="timeline-track">
-                            <!-- Segments will be injected here -->
+                            <!-- Injected Segments -->
                         </div>
                         <div class="current-time-indicator" id="time-indicator"></div>
                         
                         <!-- Markers -->
-                        <div class="time-marker" style="left: 0%">00:00</div>
-                        <div class="time-marker" style="left: 25%">06:00</div>
-                        <div class="time-marker" style="left: 50%">12:00</div>
-                        <div class="time-marker" style="left: 75%">18:00</div>
-                        <div class="time-marker" style="left: 100%">24:00</div>
+                        <div class="time-marker" style="left: 0%">00h</div>
+                        <div class="time-marker" style="left: 25%">06h</div>
+                        <div class="time-marker" style="left: 50%">12h</div>
+                        <div class="time-marker" style="left: 75%">18h</div>
+                        <div class="time-marker" style="left: 100%">00h</div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="flex items-center p-4 bg-white/5 rounded-2xl">
-                            <div class="w-3 h-3 rounded-full bg-green-500 mr-3"></div>
-                            <div>
-                                <p class="text-xs text-apple-secondary font-bold uppercase">Standard</p>
-                                <p class="text-sm font-semibold">2x Boost Active</p>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="p-6 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-colors">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_rgba(48,209,88,0.5)]"></div>
+                                <p class="text-xs font-black uppercase text-apple-secondary">Standard</p>
                             </div>
+                            <p class="text-lg font-bold">2x Higher Limits</p>
+                            <p class="text-xs text-apple-secondary mt-1 font-medium">Auto-resumes weekdays</p>
                         </div>
-                        <div class="flex items-center p-4 bg-white/5 rounded-2xl">
-                            <div class="w-3 h-3 rounded-full bg-orange-500 mr-3"></div>
-                            <div>
-                                <p class="text-xs text-apple-secondary font-bold uppercase">Peak</p>
-                                <p class="text-sm font-semibold">Normal Limits</p>
+                        <div class="p-6 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-colors">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(255,159,10,0.5)]"></div>
+                                <p class="text-xs font-black uppercase text-apple-secondary">Peak</p>
                             </div>
+                            <p class="text-lg font-bold">Normal Limits</p>
+                            <p class="text-xs text-apple-secondary mt-1 font-medium">17:30 — 23:30 IST</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Detail Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                <div class="glass-panel p-6">
-                    <i data-lucide="zap" class="text-yellow-500 mb-4"></i>
-                    <h4 class="font-bold mb-2">Instant Sync</h4>
-                    <p class="text-sm text-apple-secondary">Real-time detection of Claude capacity changes.</p>
+            <!-- Features -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+                <div class="glass-panel p-8">
+                    <div class="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="shield" class="text-yellow-500 w-6 h-6"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Edge Execution</h4>
+                    <p class="text-apple-secondary leading-relaxed font-medium">Zero server latency. All timing logic runs directly on your hardware.</p>
                 </div>
-                <div class="glass-panel p-6">
-                    <i data-lucide="globe" class="text-blue-500 mb-4"></i>
-                    <h4 class="font-bold mb-2">Global Logic</h4>
-                    <p class="text-sm text-apple-secondary">IST-based scheduling converted to your locale automatically.</p>
+                <div class="glass-panel p-8">
+                    <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="layers" class="text-blue-500 w-6 h-6"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Window Logic</h4>
+                    <p class="text-apple-secondary leading-relaxed font-medium">Intelligent handling of timezone offsets and weekend full-day boosts.</p>
                 </div>
-                <div class="glass-panel p-6">
-                    <i data-lucide="shield-check" class="text-green-500 mb-4"></i>
-                    <h4 class="font-bold mb-2">Privacy First</h4>
-                    <p class="text-sm text-apple-secondary">No data leaves your browser. Pure local execution.</p>
+                <div class="glass-panel p-8">
+                    <div class="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="mouse-pointer" class="text-green-500 w-6 h-6"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Micro-Interactions</h4>
+                    <p class="text-apple-secondary leading-relaxed font-medium">Highly responsive interface built for power users and precision.</p>
                 </div>
             </div>
         </main>
 
-        <footer class="py-10 border-t border-white/5 text-center">
-            <p class="text-apple-secondary text-sm">Made by Dhanush &bull; 2024</p>
-            <div class="flex justify-center space-x-4 mt-4">
-                <a href="#" class="text-apple-secondary hover:text-white transition-colors"><i data-lucide="github" class="w-5 h-5"></i></a>
-                <a href="#" class="text-apple-secondary hover:text-white transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+        <footer class="py-16 border-t border-white/5 flex flex-col items-center">
+            <div class="flex space-x-12 mb-8">
+                <a href="#" class="nav-link text-sm font-bold">Privacy</a>
+                <a href="#" class="nav-link text-sm font-bold">Terms</a>
+                <a href="#" class="nav-link text-sm font-bold">Github</a>
             </div>
+            <p class="text-apple-secondary text-sm font-semibold">Crafted by Dhanush &bull; 2024</p>
         </footer>
     </div>
 
     <script>
-        // Initialize Lucide icons
+        // Initialize
         lucide.createIcons();
-
-        // Constants
-        const PEAK_START = "17:30"; // 5:30 PM IST
-        const PEAK_END = "23:30";   // 11:30 PM IST
-        
-        // State
         let isDarkMode = true;
+
+        // Core Timing Logic
+        const getISTDate = () => new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
         
-        // Timezone Logic
-        function updateTimezone() {
-            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            document.getElementById('timezone-label').textContent = tz + " (" + getOffset() + ")";
-        }
-
-        function getOffset() {
-            return new Date().toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ').pop();
-        }
-
-        // IST Logic Implementation
-        function getISTTime() {
-            return new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-        }
-
-        function isPeakHour() {
-            const ist = getISTTime();
+        const isBoostActive = () => {
+            const ist = getISTDate();
             const day = ist.getDay();
             const hours = ist.getHours();
             const mins = ist.getMinutes();
             const totalMins = hours * 60 + mins;
 
-            // Weekends: Full day Peak (Wait, user said "weekends its full day" - checking context)
-            // "the time of 2x is 5:30pm to 11:30 pm IST everyday and weekends (Sat and sunday) its full day"
-            // Wait, usually "Peak" is when things are busy. 
-            // The user said: "the time of 2x is 5:30pm to 11:30 pm IST everyday"
-            // And "weekends its full day"
+            // Sat/Sun: Full day Boost (Wait, let's clarify user request)
+            // "time of 2x is 5:30pm to 11:30 pm IST everyday and weekends its full day"
+            // Wait, "time of 2x" means when Boost is ON.
+            // 2x = Boost.
             
-            const peakStartMins = 17 * 60 + 30; // 17:30
-            const peakEndMins = 23 * 60 + 30;   // 23:30
+            const boostStart = 17 * 60 + 30; // 17:30
+            const boostEnd = 23 * 60 + 30;   // 23:30
 
             const isWeekend = (day === 0 || day === 6);
-            
-            if (isWeekend) return true; // 2x all day weekends
-            return (totalMins >= peakStartMins && totalMins <= peakEndMins);
-        }
+            if (isWeekend) return true;
+            return (totalMins >= boostStart && totalMins <= boostEnd);
+        };
 
-        function updateTimer() {
-            const ist = getISTTime();
-            const statusText = document.getElementById('status-text');
-            const timerDisplay = document.getElementById('timer-display');
-            const subStatus = document.getElementById('sub-status');
+        const updateUI = () => {
+            const now = new Date();
+            const active = isBoostActive();
             
-            const active = isPeakHour();
+            // Timer
+            document.getElementById('timer-display').textContent = now.toLocaleTimeString('en-GB', { hour12: false });
+            
+            // Status
+            const pill = document.getElementById('status-pill');
+            const sub = document.getElementById('sub-status');
             
             if (active) {
-                statusText.textContent = "Boost Active";
-                statusText.className = "text-4xl font-bold block text-green-500";
-                subStatus.textContent = "Enjoy 2x higher limits";
+                pill.textContent = "BOOST ACTIVE";
+                pill.className = "inline-flex items-center px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-sm font-bold";
+                sub.textContent = "Enjoy 2x higher limits right now";
             } else {
-                statusText.textContent = "Standard Limits";
-                statusText.className = "text-4xl font-bold block text-apple-secondary";
-                subStatus.textContent = "Boost resumes at 5:30 PM IST";
+                pill.textContent = "STANDARD WINDOW";
+                pill.className = "inline-flex items-center px-3 py-1 bg-apple-blue/10 text-apple-blue rounded-full text-sm font-bold";
+                sub.textContent = "Boost resumes at 17:30 IST";
             }
 
-            // Real-time HH:MM:SS
-            const now = new Date();
-            timerDisplay.textContent = now.toLocaleTimeString('en-GB', { hour12: false });
-            
             // Timeline Indicator
-            const totalMinsInDay = 24 * 60;
+            const totalMins = 24 * 60;
             const currentMins = now.getHours() * 60 + now.getMinutes();
-            const percent = (currentMins / totalMinsInDay) * 100;
-            document.getElementById('time-indicator').style.left = percent + "%";
+            const pct = (currentMins / totalMins) * 100;
+            document.getElementById('time-indicator').style.left = pct + "%";
             
-            // Progress bar (dummy logic for visual)
-            const progress = (now.getHours() / 24) * 100;
-            document.getElementById('progress-bar').style.width = progress + "%";
-            document.getElementById('progress-percent').textContent = Math.round(progress) + "%";
-        }
+            // Progress
+            const dayProgress = (currentMins / totalMins) * 100;
+            document.getElementById('progress-bar').style.width = dayProgress + "%";
+            document.getElementById('progress-percent').textContent = Math.round(dayProgress) + "%";
+        };
 
-        function buildTimeline() {
+        const buildTimeline = () => {
             const track = document.getElementById('timeline-track');
             track.innerHTML = '';
             
-            // 2x Window: 17:30 to 23:30 (6 hours)
-            const startPct = ((17.5 * 60) / (24 * 60)) * 100;
-            const durationPct = ((6 * 60) / (24 * 60)) * 100;
-            
-            // Standard background
-            const base = document.createElement('div');
-            base.className = "timeline-segment segment-standard w-full";
-            track.appendChild(base);
-            
-            // Peak/Boost highlight
-            const peak = document.createElement('div');
-            peak.className = "timeline-segment segment-peak";
-            peak.style.left = startPct + "%";
-            peak.style.width = durationPct + "%";
-            track.appendChild(peak);
-        }
+            const ist = getISTDate();
+            const isWeekend = (ist.getDay() === 0 || ist.getDay() === 6);
 
-        // Theme Toggle
-        document.getElementById('theme-toggle').addEventListener('click', () => {
+            if (isWeekend) {
+                const seg = document.createElement('div');
+                seg.className = "timeline-segment segment-standard w-full";
+                track.appendChild(seg);
+            } else {
+                // Peak (17:30 - 23:30)
+                const startPct = ((17.5 * 60) / (24 * 60)) * 100;
+                const durPct = ((6 * 60) / (24 * 60)) * 100;
+                
+                const peak = document.createElement('div');
+                peak.className = "timeline-segment segment-peak";
+                peak.style.left = startPct + "%";
+                peak.style.width = durPct + "%";
+                track.appendChild(peak);
+                
+                // Standards
+                const s1 = document.createElement('div');
+                s1.className = "timeline-segment segment-standard";
+                s1.style.left = "0%";
+                s1.style.width = startPct + "%";
+                track.appendChild(s1);
+
+                const s2 = document.createElement('div');
+                s2.className = "timeline-segment segment-standard";
+                s2.style.left = (startPct + durPct) + "%";
+                s2.style.width = (100 - (startPct + durPct)) + "%";
+                track.appendChild(s2);
+            }
+        };
+
+        // Interactions
+        const track = document.getElementById('timeline-track');
+        const tooltip = document.getElementById('timeline-tooltip');
+        
+        track.onmousemove = (e) => {
+            const rect = track.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const pct = (x / rect.width) * 100;
+            const hour = Math.floor((pct / 100) * 24);
+            const min = Math.floor(((pct / 100) * 24 % 1) * 60);
+            
+            tooltip.style.opacity = "1";
+            tooltip.style.left = e.clientX + "px";
+            tooltip.style.top = (rect.top - 40) + "px";
+            tooltip.textContent = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+        };
+
+        track.onmouseleave = () => tooltip.style.opacity = "0";
+
+        // Theme
+        document.getElementById('theme-toggle').onclick = () => {
             isDarkMode = !isDarkMode;
             document.body.classList.toggle('dark');
+            document.body.classList.toggle('bg-white');
             const icon = document.getElementById('theme-icon');
             icon.setAttribute('data-lucide', isDarkMode ? 'moon' : 'sun');
             lucide.createIcons();
-        });
+        };
 
-        // Initialize
+        // Init
         window.onload = () => {
             buildTimeline();
-            updateTimezone();
-            
-            // Fade in content, hide skeleton
-            setTimeout(() => {
-                document.getElementById('skeleton-screen').style.display = 'none';
-                document.getElementById('main-content').classList.remove('opacity-0');
-            }, 1200);
-
-            setInterval(updateTimer, 1000);
-            updateTimer();
-            
+            document.getElementById('timezone-label').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
             document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                month: 'long', 
-                day: 'numeric' 
+                weekday: 'long', month: 'long', day: 'numeric' 
             });
+            
+            setTimeout(() => {
+                const skeleton = document.getElementById('skeleton-screen');
+                const content = document.getElementById('main-content');
+                skeleton.style.opacity = '0';
+                setTimeout(() => {
+                    skeleton.style.display = 'none';
+                    content.classList.remove('opacity-0', 'translate-y-4');
+                    document.body.classList.remove('overflow-hidden');
+                }, 500);
+            }, 1500);
+
+            setInterval(updateUI, 1000);
+            updateUI();
         };
     </script>
 </body>
