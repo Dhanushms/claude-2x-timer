@@ -51,7 +51,6 @@
         .clock-section { text-align: center; }
         .clock { font-size: 4rem; font-weight: 700; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; margin-bottom: 8px; }
         
-        /* Timezone Dropdown */
         .tz-picker {
             display: inline-flex;
             align-items: center;
@@ -72,7 +71,6 @@
             appearance: none;
         }
 
-        /* Status Pill */
         .status-pill {
             display: inline-flex;
             align-items: center;
@@ -99,7 +97,6 @@
 
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(20, 184, 166, 0); } 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); } }
 
-        /* Timeline */
         .timeline-section { width: 100%; }
         .timeline-header {
             display: flex;
@@ -145,7 +142,6 @@
             color: var(--text-muted);
         }
 
-        /* Countdown Card */
         .main-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -159,7 +155,6 @@
         .countdown.one-x { color: var(--1x); }
         .card-info { font-size: 0.85rem; color: var(--text-muted); }
 
-        /* Upcoming List */
         .upcoming-section { width: 100%; }
         .upcoming-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
         .upcoming-row {
@@ -185,28 +180,11 @@
 
         footer { margin-top: 32px; font-size: 0.7rem; color: var(--text-muted); text-align: center; }
 
-        /* Mobile Adjustments */
         @media (max-width: 480px) {
             .clock { font-size: 3.2rem; }
             .countdown { font-size: 2.5rem; }
             .main-card { padding: 24px 16px; }
             .row-day { width: 65px; }
-        }
-
-        /* Tooltip style */
-        .tooltip {
-            position: absolute;
-            background: #fff;
-            color: #000;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-            pointer-events: none;
-            display: none;
-            z-index: 100;
-            transform: translate(-50%, -100%);
-            margin-top: -10px;
         }
     </style>
 </head>
@@ -266,13 +244,11 @@
     <script>
         const RULES = {
             endBoost: new Date('2026-03-27T23:59:59Z'),
-            // 2x windows: 5:30 PM - 11:30 PM IST on weekdays (12:00-18:00 UTC)
-            // Weekends: full day 2x
             is2x: (date) => {
                 const day = date.getUTCDay(); // 0=Sun, 6=Sat
                 if (day === 0 || day === 6) return true;
                 const hours = date.getUTCHours();
-                return hours >= 12 && hours < 18;
+                return hours >= 12 && hours < 18; // 12-18 UTC is 5:30-11:30 PM IST
             }
         };
 
@@ -292,7 +268,6 @@
         let currentTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const select = document.getElementById('tzSelect');
         
-        // Init Dropdown
         ZONES.forEach(z => {
             const opt = document.createElement('option');
             opt.value = z.id === 'detected' ? Intl.DateTimeFormat().resolvedOptions().timeZone : z.id;
@@ -310,11 +285,12 @@
             currentTz = e.target.value;
             updateCityLabel();
             renderTimeline();
+            renderUpcoming();
             tick();
         };
 
-        function getLocalTime(tz) {
-            return new Date(new Date().toLocaleString("en-US", {timeZone: tz}));
+        function getTzNow() {
+            return new Date(new Date().toLocaleString("en-US", {timeZone: currentTz}));
         }
 
         function pad(n) { return String(n).padStart(2, '0'); }
@@ -322,18 +298,18 @@
         function renderTimeline() {
             const bar = document.getElementById('timelineBar');
             const marker = document.getElementById('nowMarker');
-            // Clear existing segments
             bar.querySelectorAll('.seg').forEach(s => s.remove());
             
-            const now = getLocalTime(currentTz);
-            const startOfDay = new Date(now);
+            const tzNow = getTzNow();
+            const startOfDay = new Date(tzNow);
             startOfDay.setHours(0,0,0,0);
 
             let segments = [];
-            // Sample every 15 mins for the bar
             for(let i=0; i<1440; i+=15) {
-                const t = new Date(startOfDay.getTime() + i * 60000);
-                const active = RULES.is2x(t);
+                const localT = new Date(startOfDay.getTime() + i * 60000);
+                // Convert back to UTC to check rules
+                const utcT = new Date(localT.toLocaleString("en-US", {timeZone: "UTC"}));
+                const active = RULES.is2x(utcT);
                 if (segments.length > 0 && segments[segments.length-1].active === active) {
                     segments[segments.length-1].duration += 15;
                 } else {
@@ -349,48 +325,36 @@
             });
             bar.appendChild(marker);
 
-            // Boost range text
-            if (now.getDay() === 0 || now.getDay() === 6) {
-                document.getElementById('boostRange').textContent = "Full weekend boost active";
-            } else {
-                // Hardcoded IST display for weekday for clarity, converted to local if needed
-                document.getElementById('boostRange').textContent = "Weekday 2x: 5:30 pm – 11:30 pm IST";
-            }
+            const isWeekend = tzNow.getDay() === 0 || tzNow.getDay() === 6;
+            document.getElementById('boostRange').textContent = isWeekend ? "Full weekend boost active" : "Weekday 2x: 12:00 – 18:00 UTC";
         }
 
         function getNextWindows() {
             const list = [];
             let check = new Date();
-            // Round to next hour for cleaner list
             check.setMinutes(0,0,0);
             
-            while(list.length < 3) {
-                const isNow2x = RULES.is2x(check);
-                if (!isNow2x) {
-                    // Find next start
-                    while(!RULES.is2x(check)) check.setTime(check.getTime() + 1800000); // jump 30m
+            for(let i=0; i<168; i++) { // Check next 7 days hour by hour
+                const active = RULES.is2x(check);
+                if (active) {
                     const start = new Date(check);
-                    while(RULES.is2x(check)) check.setTime(check.getTime() + 1800000);
+                    while(RULES.is2x(check)) check.setTime(check.getTime() + 3600000);
                     const end = new Date(check);
                     list.push({ start, end });
-                } else {
-                    // Currently in one, find the one after this
-                    while(RULES.is2x(check)) check.setTime(check.getTime() + 1800000);
-                    while(!RULES.is2x(check)) check.setTime(check.getTime() + 1800000);
+                    if (list.length >= 3) break;
                 }
+                check.setTime(check.getTime() + 3600000);
             }
             return list;
         }
 
         function tick() {
-            const nowLocal = getLocalTime(currentTz);
-            const nowUTC = new Date();
+            const tzNow = getTzNow();
+            const utcNow = new Date();
             
-            // Clock
-            document.getElementById('clock').textContent = nowLocal.toLocaleTimeString('en-GB', { hour12: false });
+            document.getElementById('clock').textContent = tzNow.toLocaleTimeString('en-GB', { hour12: false });
             
-            // Status
-            const active = RULES.is2x(nowUTC);
+            const active = RULES.is2x(utcNow);
             const pill = document.getElementById('statusPill');
             const icon = document.getElementById('statusIcon');
             const txt = document.getElementById('statusText');
@@ -405,37 +369,28 @@
                 txt.textContent = '1x Mode — Normal speed';
             }
 
-            // Marker
-            const mins = nowLocal.getHours() * 60 + nowLocal.getMinutes();
+            const mins = tzNow.getHours() * 60 + tzNow.getMinutes();
             document.getElementById('nowMarker').style.left = (mins / 1440 * 100) + '%';
 
-            // Countdown
-            let target;
+            let target = new Date(utcNow);
             if (active) {
-                // Find when 2x ends
-                let findEnd = new Date(nowUTC);
-                while(RULES.is2x(findEnd)) findEnd.setTime(findEnd.getTime() + 1000);
-                target = findEnd;
+                while(RULES.is2x(target)) target.setTime(target.getTime() + 1000);
                 document.getElementById('cdLabel').textContent = "You're in the zone — 2x ends in";
                 document.getElementById('countdown').className = "countdown two-x";
             } else {
-                // Find when 2x starts
-                let findStart = new Date(nowUTC);
-                while(!RULES.is2x(findStart)) findStart.setTime(findStart.getTime() + 1000);
-                target = findStart;
+                while(!RULES.is2x(target)) target.setTime(target.getTime() + 1000);
                 document.getElementById('cdLabel').textContent = "Good time coming up — 2x in";
                 document.getElementById('countdown').className = "countdown one-x";
             }
 
-            const diff = Math.max(0, Math.floor((target - nowUTC) / 1000));
+            const diff = Math.max(0, Math.floor((target - utcNow) / 1000));
             const h = Math.floor(diff / 3600);
             const m = Math.floor((diff % 3600) / 60);
             const s = diff % 60;
             document.getElementById('countdown').textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
             
-            // Next window info
-            const localTarget = new Date(target.toLocaleString("en-US", {timeZone: currentTz}));
-            document.getElementById('cdInfo').textContent = (active ? 'Ends at ' : 'Starts at ') + localTarget.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const tzTarget = new Date(target.toLocaleString("en-US", {timeZone: currentTz}));
+            document.getElementById('cdInfo').textContent = (active ? 'Ends at ' : 'Starts at ') + tzTarget.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
 
         function renderUpcoming() {
@@ -451,8 +406,11 @@
                 row.className = 'upcoming-row';
                 
                 const dayName = s.toLocaleDateString([], {weekday: 'short'});
-                const timeStr = s.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) + ' – ' + e.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-                
+                // Fix for full day weekends: if diff is 24h or 48h
+                const durationHrs = (e - s) / 3600000;
+                let timeStr = s.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) + ' – ' + e.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+                if (durationHrs >= 24) timeStr = "Full Day Boost";
+
                 row.innerHTML = `
                     <div class="row-left">
                         <div class="row-day">${dayName}</div>
@@ -464,13 +422,12 @@
             });
         }
 
-        // Init
         updateCityLabel();
         renderTimeline();
         renderUpcoming();
         tick();
         setInterval(tick, 1000);
-        setInterval(renderUpcoming, 60000); // Refresh list every min
+        setInterval(renderUpcoming, 60000);
     </script>
 </body>
 </html>
