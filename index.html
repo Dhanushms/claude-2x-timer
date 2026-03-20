@@ -2,123 +2,152 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Claude 2x Planner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --p: #0F766E; --bg: #020617; --s: #0F172A; --t1: #F8FAFC; --t2: #94A3B8;
-      --acc: #14B8A6; --bor: #1E293B; --rad: 16px; --skel: #1E293B;
+      --bg: #F2F2F7; --card: #FFFFFF; --t1: #1C1C1E; --t2: #8E8E93;
+      --p: #007AFF; --acc: #5856D6; --bor: rgba(0,0,0,0.05);
+      --glass: rgba(255,255,255,0.7); --blur: saturate(180%) blur(20px);
     }
-    [data-theme=light] {
-      --p: #0D9488; --bg: #F8FAFC; --s: #FFFFFF; --t1: #0F172A; --t2: #64748B;
-      --bor: #E2E8F0; --skel: #F1F5F9;
+    [data-theme=dark] {
+      --bg: #000000; --card: #1C1C1E; --t1: #FFFFFF; --t2: #8E8E93;
+      --p: #0A84FF; --acc: #5E5CE6; --bor: rgba(255,255,255,0.1);
+      --glass: rgba(28,28,30,0.7);
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); transition: .3s; line-height: 1.6; }
-    .container { max-width: 500px; margin: 0 auto; padding: 40px 20px; }
-    .hero { text-align: center; margin-bottom: 32px; }
-    h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; background: linear-gradient(135deg, var(--p), var(--acc)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .promo { background: rgba(20, 184, 166, 0.1); border: 1px solid var(--p); border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 24px; font-size: 13px; color: var(--p); font-weight: 600; display: none; animation: fadeIn 0.5s ease-out; }
-    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
-    .card { background: var(--s); border: 1px solid var(--bor); padding: 20px; border-radius: var(--rad); transition: transform 0.2s, border-color 0.2s; position: relative; overflow: hidden; }
-    .card:hover { transform: translateY(-2px); border-color: var(--p); }
-    .badge { display: inline-block; padding: 4px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
-    .badge-live { background: rgba(16, 185, 129, 0.1); color: #10B981; }
-    .badge-next { background: rgba(14, 165, 233, 0.1); color: #0EA5E9; }
-    h3 { font-size: 15px; margin-bottom: 4px; color: var(--t2); }
-    .time-val { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-    .countdown { font-size: 28px; font-weight: 800; color: var(--p); font-variant-numeric: tabular-nums; }
-    .progress { width: 100%; height: 6px; background: var(--bor); border-radius: 10px; margin-top: 16px; overflow: hidden; }
-    .progress-bar { height: 100%; background: var(--p); transition: width 1s linear; }
-    .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--t2); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-    .section-title::after { content: ""; height: 1px; flex: 1; background: var(--bor); }
-    .timeline { position: relative; padding-left: 24px; }
-    .timeline::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; background: var(--bor); }
-    .item { position: relative; margin-bottom: 24px; padding: 16px; background: var(--s); border: 1px solid var(--bor); border-radius: 12px; transition: 0.2s; }
-    .item:hover { border-color: var(--p); background: rgba(15, 118, 110, 0.02); }
-    .item::before { content: ""; position: absolute; left: -29px; top: 22px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--bor); z-index: 1; transition: 0.2s; }
-    .item.active::before { border-color: var(--p); background: var(--p); box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.15); }
-    .item.boost { border-left: 4px solid var(--acc); }
-    .item.boost::before { border-color: var(--acc); }
-    .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-    .item-title { font-size: 14px; font-weight: 700; }
-    .item-time { font-size: 13px; color: var(--t2); }
-    .item-badge { font-size: 9px; padding: 2px 6px; background: rgba(20, 184, 166, 0.1); color: var(--acc); border-radius: 4px; font-weight: 700; }
-    .skeleton { background: var(--skel); position: relative; overflow: hidden; border-radius: 4px; }
-    .skeleton::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); animation: loading 1.5s infinite; }
-    [data-theme=light] .skeleton::after { background: linear-gradient(90deg, transparent, rgba(0,0,0,0.03), transparent); }
-    @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 32px; }
-    .btn { padding: 14px; border-radius: 12px; font-weight: 600; font-size: 13px; cursor: pointer; border: none; text-align: center; text-decoration: none; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-p { background: var(--p); color: #fff; }
-    .btn-p:hover { background: var(--acc); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2); }
-    .btn-o { background: var(--s); border: 1px solid var(--bor); color: var(--t1); }
-    .btn-o:hover { border-color: var(--p); color: var(--p); }
-    .theme-btn { position: fixed; top: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: var(--s); border: 1px solid var(--bor); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; transition: 0.2s; }
-    .theme-btn:hover { border-color: var(--p); transform: rotate(15deg); }
-    .footer { margin-top: 48px; text-align: center; font-size: 12px; color: var(--t2); }
-    .footer a { color: var(--p); text-decoration: none; font-weight: 600; }
-    .tz-selector { margin-top: 16px; text-align: center; }
-    select { background: transparent; border: none; color: var(--p); font-weight: 600; cursor: pointer; outline: none; font-size: 12px; padding: 4px; border-radius: 4px; }
-    select:hover { background: rgba(15, 118, 110, 0.05); }
-    @media(max-width: 400px) { .card-grid, .btn-group { grid-template-columns: 1fr; } }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--t1); transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1); line-height: 1.5; overflow-x: hidden; }
+    .container { max-width: 480px; margin: 0 auto; padding: 60px 24px; min-height: 100vh; }
+    
+    /* Apple Header Style */
+    .header { text-align: center; margin-bottom: 40px; animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
+    .subtitle { color: var(--t2); font-size: 17px; font-weight: 500; }
+
+    /* Live Card - Glassmorphism */
+    .live-card {
+      background: var(--glass); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+      border: 1.5px solid var(--bor); border-radius: 28px; padding: 32px; margin-bottom: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.05); position: relative; overflow: hidden;
+      animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both;
+    }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+      background: rgba(48, 209, 88, 0.15); color: #30D158; border-radius: 100px;
+      font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 20px;
+    }
+    .status-pill.off { background: rgba(142, 142, 147, 0.15); color: var(--t2); }
+    
+    .timer-display { font-size: 56px; font-weight: 800; letter-spacing: -2px; margin: 12px 0; font-variant-numeric: tabular-nums; }
+    .timer-label { color: var(--t2); font-size: 15px; font-weight: 600; margin-bottom: 24px; }
+    
+    .progress-track { height: 8px; background: var(--bor); border-radius: 100px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--p); border-radius: 100px; transition: width 1s linear; }
+
+    /* Modern Timeline */
+    .section-label { font-size: 13px; font-weight: 700; color: var(--t2); text-transform: uppercase; letter-spacing: 1px; margin: 40px 0 20px; padding-left: 4px; }
+    .timeline { display: flex; flex-direction: column; gap: 12px; animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both; }
+    .time-item {
+      background: var(--card); border: 1.5px solid var(--bor); border-radius: 20px; padding: 18px 24px;
+      display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;
+    }
+    .time-item:hover { transform: scale(1.02); border-color: var(--p); }
+    .time-info h4 { font-size: 17px; font-weight: 600; }
+    .time-info p { font-size: 14px; color: var(--t2); font-weight: 500; }
+    .boost-tag {
+      background: linear-gradient(135deg, var(--p), var(--acc)); color: white;
+      padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+    }
+
+    /* Action Buttons */
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 32px; animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s both; }
+    .btn {
+      height: 54px; border-radius: 16px; border: none; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary { background: var(--t1); color: var(--bg); }
+    .btn-secondary { background: var(--card); color: var(--t1); border: 1.5px solid var(--bor); }
+    .btn:active { transform: scale(0.96); opacity: 0.8; }
+
+    /* Footer Polished */
+    .footer { margin-top: 60px; text-align: center; color: var(--t2); font-size: 13px; padding-bottom: 40px; line-height: 1.8; }
+    .footer a { color: var(--t1); text-decoration: none; font-weight: 600; border-bottom: 1.5px solid transparent; transition: 0.2s; }
+    .footer a:hover { border-bottom-color: var(--t1); }
+    .tooltip { position: relative; display: inline-block; cursor: help; border-bottom: 1px dotted var(--t2); }
+    .tooltip .tooltiptext {
+      visibility: hidden; width: 200px; background: var(--t1); color: var(--bg); text-align: center;
+      border-radius: 12px; padding: 10px; position: absolute; z-index: 1; bottom: 125%; left: 50%;
+      margin-left: -100px; opacity: 0; transition: opacity 0.3s; font-size: 12px; font-weight: 500; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+
+    /* Controls */
+    .theme-toggle { position: fixed; top: 24px; right: 24px; width: 44px; height: 44px; border-radius: 100px; background: var(--glass); backdrop-filter: var(--blur); border: 1.5px solid var(--bor); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; transition: 0.3s; font-size: 20px; }
+    .tz-select-wrap { margin-top: 24px; text-align: center; }
+    #tz-select { background: transparent; border: none; color: var(--p); font-size: 13px; font-weight: 700; cursor: pointer; outline: none; padding: 4px 8px; border-radius: 8px; }
+    #tz-select:hover { background: rgba(0,0,0,0.05); }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 480px) { h1 { font-size: 28px; } .timer-display { font-size: 48px; } .actions { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body data-theme="dark">
-  <button class="theme-btn" id="tog" title="Toggle Theme">🌓</button>
+  <button class="theme-toggle" id="theme-btn" aria-label="Toggle Theme">🌓</button>
+  
   <div class="container">
-    <header class="hero">
+    <header class="header">
       <h1>Claude 2x Planner</h1>
-      <p style="color:var(--t2);font-size:14px">Intelligent scheduling for message limits</p>
+      <p class="subtitle">Smart scheduling for power users.</p>
     </header>
 
-    <div id="promo" class="promo">🚀 2x Usage Boost Active</div>
-
-    <div class="card-grid" id="main-cards">
-      <div class="card">
-        <span class="badge badge-live">Live Now</span>
-        <h3>Next Reset</h3>
-        <div id="c-reset" class="time-val"><div class="skeleton" style="width:80px;height:18px"></div></div>
-        <div id="countdown" class="countdown">--:--:--</div>
-        <div class="progress"><div class="progress-bar" id="progress" style="width:0%"></div></div>
+    <div class="live-card">
+      <div id="status-pill" class="status-pill">
+        <span id="status-dot" style="width:8px;height:8px;background:currentColor;border-radius:50%"></span>
+        <span id="status-text">Checking Boost...</span>
       </div>
-      <div class="card">
-        <span class="badge badge-next">Status</span>
-        <h3 id="status-label">Current State</h3>
-        <div id="n-start" class="time-val"><div class="skeleton" style="width:100px;height:18px"></div></div>
-        <div id="state-desc" style="font-size:13px;color:var(--t2)">Checking boost schedule...</div>
+      <div id="countdown" class="timer-display">00:00:00</div>
+      <p id="timer-desc" class="timer-label">Loading schedule...</p>
+      <div class="progress-track">
+        <div id="progress" class="progress-fill" style="width: 0%"></div>
       </div>
     </div>
 
-    <div class="section-title">Timeline</div>
-    <div id="tl" class="timeline">
-      <div class="item"><div class="skeleton" style="height:60px;border-radius:8px"></div></div>
-      <div class="item"><div class="skeleton" style="height:60px;border-radius:8px"></div></div>
-      <div class="item"><div class="skeleton" style="height:60px;border-radius:8px"></div></div>
+    <div class="section-label">Upcoming Schedule</div>
+    <div id="timeline" class="timeline">
+      <!-- Generated by JS -->
     </div>
 
-    <div class="btn-group">
-      <button id="abc" class="btn btn-p">Add to Apple Calendar</button>
-      <button id="gbc" class="btn btn-o">Google Calendar</button>
+    <div class="actions">
+      <button id="add-apple" class="btn btn-primary">Add to Calendar</button>
+      <button id="add-google" class="btn btn-secondary">Google Calendar</button>
     </div>
 
-    <div class="tz-selector">
+    <div class="tz-select-wrap">
       <select id="tz-select"></select>
     </div>
 
     <footer class="footer">
-      Designed by <a href="https://bysomeone.com" target="_blank">Bysomeone</a>
+      Made by <a href="https://bysomeone.com" target="_blank">Dhanush</a> &middot; 
+      <span class="tooltip">Privacy-first
+        <span class="tooltiptext">No data collection. No trackers. All calculations happen locally on your device.</span>
+      </span> &middot; 
+      All times auto-converted to your timezone
+      <br><br>
+      <a href="https://github.com/Dhanushms/claude-2x-timer" target="_blank" style="display:inline-flex;align-items:center;gap:4px">
+        <svg height="16" viewBox="0 0 16 16" width="16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+        GitHub
+      </a>
     </footer>
   </div>
 
   <script>
     const b = document.body;
+    const themeBtn = document.getElementById('theme-btn');
     const setT = t => { b.setAttribute('data-theme', t); localStorage.setItem('cl_t', t); };
-    document.getElementById('tog').onclick = () => setT(b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    themeBtn.onclick = () => setT(b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     if (localStorage.getItem('cl_t')) setT(localStorage.getItem('cl_t'));
 
     const tzSelect = document.getElementById('tz-select');
@@ -129,96 +158,79 @@
       if (z === selTz) o.selected = true; tzSelect.appendChild(o);
     });
 
-    // Boost Logic: 5:30 PM - 11:30 PM IST Weekdays, Full Day Weekends
     function getBoostStatus(date) {
-      // Convert to IST (UTC+5:30)
       const istDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-      const day = istDate.getDay(); // 0: Sun, 6: Sat
-      const hours = istDate.getHours();
-      const mins = istDate.getMinutes();
-      const totalMins = hours * 60 + mins;
+      const day = istDate.getDay();
+      const h = istDate.getHours();
+      const m = istDate.getMinutes();
+      const totalMins = h * 60 + m;
 
       const isWeekend = (day === 0 || day === 6);
-      const startMins = 17 * 60 + 30; // 5:30 PM
-      const endMins = 23 * 60 + 30;   // 11:30 PM
+      const start = 17 * 60 + 30; // 5:30 PM
+      const end = 23 * 60 + 30;   // 11:30 PM
       
-      const active = isWeekend || (totalMins >= startMins && totalMins < endMins);
+      const active = isWeekend || (totalMins >= start && totalMins < end);
       
-      // Calculate next transition
       let next = new Date(istDate);
       if (isWeekend) {
-        // Next transition is Monday 5:30 PM (End of weekend boost, but starts weekday off-boost)
-        // Actually, let's just find the next 5:30 PM or 11:30 PM IST
-        next.setHours(17, 30, 0, 0);
-        if (next <= istDate) next.setDate(next.getDate() + 1);
+        // Weekend is continuous, next change is Monday 5:30 PM IST (off-boost start)
+        // For simplicity in UI, we check next day transition
+        next.setHours(23, 59, 59, 999);
       } else {
-        if (totalMins < startMins) next.setHours(17, 30, 0, 0);
-        else if (totalMins < endMins) next.setHours(23, 30, 0, 0);
+        if (totalMins < start) next.setHours(17, 30, 0, 0);
+        else if (totalMins < end) next.setHours(23, 30, 0, 0);
         else { next.setDate(next.getDate() + 1); next.setHours(17, 30, 0, 0); }
       }
       
-      // Convert back to local time for the timer
-      const istOffset = 330; // Minutes
-      const localOffset = date.getTimezoneOffset();
-      const diff = (istOffset + localOffset) * 60000;
-      const nextLocal = new Date(next.getTime() - diff);
-      
-      return { active, next: nextLocal };
+      const istOffset = 330;
+      const diff = (istOffset + date.getTimezoneOffset()) * 60000;
+      return { active, next: new Date(next.getTime() - diff) };
     }
 
     function up() {
       const now = new Date();
-      const status = getBoostStatus(now);
-      const remaining = status.next - now;
+      const s = getBoostStatus(now);
+      const rem = s.next - now;
 
-      const fmt = (d, tz) => new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: tz });
-      const fmtFull = ms => {
+      const fmt = (d, z) => new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: z });
+      const fmtTimer = ms => {
         const h = Math.floor(ms / 3600000);
         const m = Math.floor((ms % 3600000) / 60000);
-        const s = Math.floor((ms % 60000) / 1000);
-        return `${h > 0 ? h + ':' : ''}${m < 10 && h > 0 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        const sec = Math.floor((ms % 60000) / 1000);
+        return `${h}:${m < 10 ? '0' : ''}${m}:${sec < 10 ? '0' : ''}${sec}`;
       };
 
-      document.getElementById('c-reset').textContent = 'Next change at ' + fmt(status.next, selTz);
-      document.getElementById('countdown').textContent = fmtFull(remaining);
-      document.getElementById('promo').style.display = status.active ? 'block' : 'none';
+      document.getElementById('countdown').textContent = fmtTimer(rem);
+      document.getElementById('status-pill').className = 'status-pill' + (s.active ? '' : ' off');
+      document.getElementById('status-text').textContent = s.active ? '2x Boost Active' : 'Standard Limits';
+      document.getElementById('timer-desc').textContent = s.active ? 'Ends at ' + fmt(s.next, selTz) : 'Boost starts at ' + fmt(s.next, selTz);
       
-      const totalWindow = status.active ? (6 * 60 * 60 * 1000) : (18 * 60 * 60 * 1000); 
-      // Simplified progress based on 24h cycle if weekend, or 6h/18h cycle
-      document.getElementById('progress').style.width = Math.min(100, (1 - remaining / (6 * 3600000)) * 100) + '%';
-
-      document.getElementById('status-label').textContent = status.active ? 'Boost Active' : 'Normal Usage';
-      document.getElementById('n-start').textContent = status.active ? 'Ends at ' + fmt(status.next, selTz) : 'Starts at ' + fmt(status.next, selTz);
-      document.getElementById('state-desc').textContent = status.active ? 'Message limits are doubled.' : 'Standard limits apply.';
+      // Progress calculation (6h boost window or 18h off window)
+      const duration = s.active ? (6 * 3600000) : (18 * 3600000);
+      document.getElementById('progress').style.width = Math.min(100, (1 - rem / duration) * 100) + '%';
 
       let h = '';
       for (let i = 0; i < 4; i++) {
-        const checkTime = new Date(now.getTime() + i * 6 * 3600000);
-        const s = getBoostStatus(checkTime);
-        const timeStr = fmt(checkTime, selTz);
+        const t = new Date(now.getTime() + i * 6 * 3600000);
+        const st = getBoostStatus(t);
         h += `
-          <div class="item ${s.active ? 'boost' : ''} ${i === 0 ? 'active' : ''}">
-            <div class="item-header">
-              <span class="item-title">Window ${i + 1}</span>
-              ${s.active ? '<span class="item-badge">2X BOOST</span>' : ''}
+          <div class="time-item">
+            <div class="time-info">
+              <h4>${fmt(t, selTz)}</h4>
+              <p>${st.active ? 'Increased Limits' : 'Standard Usage'}</p>
             </div>
-            <div class="item-time">${timeStr} onwards</div>
+            ${st.active ? '<span class="boost-tag">2X BOOST</span>' : ''}
           </div>
         `;
       }
-      document.getElementById('tl').innerHTML = h;
+      document.getElementById('timeline').innerHTML = h;
     }
 
     tzSelect.onchange = () => { selTz = tzSelect.value; up(); };
-    setInterval(up, 1000);
-    up();
+    setInterval(up, 1000); up();
 
-    document.getElementById('abc').onclick = () => {
-      window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Claude+2x+Boost&details=Check+planner+at+claude.dhanushms.com', '_blank');
-    };
-    document.getElementById('gbc').onclick = () => {
-      window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Claude+2x+Boost', '_blank');
-    };
+    document.getElementById('add-apple').onclick = () => window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Claude+2x+Boost','_blank');
+    document.getElementById('add-google').onclick = () => window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Claude+2x+Boost','_blank');
   </script>
 </body>
 </html>
