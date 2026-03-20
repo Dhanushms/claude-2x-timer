@@ -316,19 +316,23 @@
             const title = "Claude 2x Boost Window";
             const details = "Time to get more from Claude! This window is 2x speed.";
             document.getElementById('googleCalBtn').href = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startStr}/${endStr}&details=${encodeURIComponent(details)}&location=Claude.ai`;
-            const icsContent = `BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-DTSTART:${startStr}
-DTEND:${endStr}
-SUMMARY:${title}
-DESCRIPTION:${details}
-LOCATION:Claude.ai
-END:VEVENT
-END:VCALENDAR`;
+            const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Claude 2x Planner//EN',
+      'BEGIN:VEVENT',
+      `DTSTART:${startStr}`,
+      `DTEND:${endStr}`,
+      `SUMMARY:${title}`,
+      `DESCRIPTION:${details}`,
+      'LOCATION:Claude.ai',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
             document.getElementById('appleCalBtn').onclick = (e) => {
                 e.preventDefault();
-                const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                const blob = new Blob([icsContent + '
+'], { type: 'text/calendar;charset=utf-8' });
                 const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a'); link.href = url; link.setAttribute('download', 'claude-boost.ics');
                 document.body.appendChild(link); link.click(); document.body.removeChild(link);
