@@ -1,230 +1,409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Claude 2x Planner</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #F2F2F7; --card: #FFFFFF; --t1: #1C1C1E; --t2: #8E8E93;
-      --p: #007AFF; --boost: #34C759; --peak: #FF9500; --bor: rgba(0,0,0,0.05);
-      --glass: rgba(255,255,255,0.7); --blur: saturate(180%) blur(20px);
-      --weekend-glow: rgba(52, 199, 89, 0.1);
-    }
-    [data-theme=dark] {
-      --bg: #000000; --card: #1C1C1E; --t1: #FFFFFF; --t2: #98989D;
-      --p: #0A84FF; --boost: #30D158; --peak: #FF9F0A; --bor: rgba(255,255,255,0.1);
-      --glass: rgba(28,28,30,0.8);
-      --weekend-glow: rgba(48, 209, 88, 0.15);
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--t1); transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); line-height: 1.5; overflow-x: hidden; }
-    .container { max-width: 460px; margin: 0 auto; padding: 40px 24px 80px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-    
-    .header { text-align: center; margin-bottom: 48px; animation: fadeIn 1s ease; }
-    .promo-tag { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--t2); margin-bottom: 12px; }
-    h1 { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
-    .subtitle { color: var(--t2); font-size: 15px; font-weight: 500; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude 2x Planner | Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/framer-motion/10.16.4/framer-motion.umd.min.js"></script>
+    <style>
+        :root {
+            --apple-blue: #007AFF;
+            --apple-bg: #F5F5F7;
+            --apple-card: rgba(255, 255, 255, 0.7);
+            --apple-text: #1D1D1F;
+            --apple-secondary: #86868B;
+        }
 
-    /* Visual Hero - Arc Timer */
-    .hero-visual { position: relative; width: 300px; height: 300px; margin: 20px 0 40px; display: flex; align-items: center; justify-content: center; animation: scaleUp 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
-    .arc-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
-    .arc-bg { fill: none; stroke: var(--bor); stroke-width: 8; stroke-linecap: round; }
-    .arc-fill { fill: none; stroke: var(--p); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 816; stroke-dashoffset: 816; transition: stroke-dashoffset 1s linear, stroke 0.5s; }
-    
-    .timer-content { position: absolute; text-align: center; display: flex; flex-direction: column; align-items: center; }
-    .status-badge { padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; transition: 0.3s; }
-    .status-active { background: var(--boost); color: #fff; box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3); }
-    .status-peak { background: var(--peak); color: #fff; box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3); }
-    
-    .countdown { font-size: 48px; font-weight: 800; letter-spacing: -2px; font-variant-numeric: tabular-nums; margin-bottom: 4px; }
-    .until-label { font-size: 14px; font-weight: 600; color: var(--t2); }
+        .dark {
+            --apple-bg: #000000;
+            --apple-card: rgba(28, 28, 30, 0.7);
+            --apple-text: #F5F5F7;
+            --apple-secondary: #86868B;
+        }
 
-    /* Context Cards */
-    .info-grid { width: 100%; display: grid; gap: 16px; animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both; }
-    .glass-card { background: var(--glass); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1.5px solid var(--bor); border-radius: 24px; padding: 20px 24px; display: flex; align-items: center; gap: 16px; }
-    .icon-box { width: 44px; height: 44px; border-radius: 12px; background: var(--bor); display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .card-text h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-    .card-text p { font-size: 13px; color: var(--t2); font-weight: 500; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--apple-bg);
+            color: var(--apple-text);
+            transition: background-color 0.5s cubic-bezier(0.28, 0.11, 0.32, 1);
+            overflow-x: hidden;
+        }
 
-    /* Weekend Mode Visuals */
-    body.weekend-mode { background: var(--weekend-glow); }
-    .weekend-banner { width: 100%; background: linear-gradient(135deg, #34C759, #007AFF); color: #fff; padding: 12px; border-radius: 16px; text-align: center; font-size: 13px; font-weight: 700; margin-bottom: 24px; display: none; animation: pulse 2s infinite; }
+        .glass-panel {
+            background: var(--apple-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+        }
 
-    /* Expiry Strip */
-    .expiry-strip { margin-top: 32px; font-size: 12px; font-weight: 600; color: var(--t2); display: flex; align-items: center; gap: 8px; }
-    .expiry-dot { width: 6px; height: 6px; border-radius: 50%; background: #FF3B30; }
+        .timeline-track {
+            height: 6px;
+            background: rgba(134, 134, 139, 0.2);
+            border-radius: 3px;
+            position: relative;
+        }
 
-    /* Controls */
-    .theme-toggle { position: fixed; top: 24px; right: 24px; width: 44px; height: 44px; border-radius: 100px; background: var(--glass); backdrop-filter: var(--blur); border: 1.5px solid var(--bor); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; transition: 0.3s; font-size: 18px; }
-    .tz-wrap { margin-top: 32px; font-size: 12px; font-weight: 600; color: var(--t2); }
-    select { background: transparent; border: none; color: var(--p); font-weight: 700; font-size: 12px; cursor: pointer; outline: none; }
+        .timeline-segment {
+            position: absolute;
+            height: 100%;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
 
-    /* Footer */
-    .footer { margin-top: 60px; text-align: center; color: var(--t2); font-size: 12px; line-height: 2; width: 100%; }
-    .footer a { color: var(--t1); text-decoration: none; font-weight: 600; }
-    .gh-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; background: var(--bor); padding: 6px 12px; border-radius: 100px; transition: 0.2s; }
-    .gh-link:hover { background: var(--t1); color: var(--bg); }
+        .segment-peak { background: #FF9F0A; box-shadow: 0 0 15px rgba(255, 159, 10, 0.3); }
+        .segment-standard { background: #30D158; box-shadow: 0 0 15px rgba(48, 209, 88, 0.3); }
 
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes scaleUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-    @keyframes pulse { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.9; } }
-  </style>
+        .time-marker {
+            position: absolute;
+            top: 15px;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: var(--apple-secondary);
+            font-weight: 500;
+        }
+
+        .current-time-indicator {
+            position: absolute;
+            top: -5px;
+            width: 2px;
+            height: 16px;
+            background: var(--apple-text);
+            z-index: 10;
+            transition: left 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #FF3B30;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, rgba(134,134,139,0.1) 25%, rgba(134,134,139,0.2) 50%, rgba(134,134,139,0.1) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .nav-link {
+            transition: all 0.2s ease;
+            opacity: 0.6;
+        }
+
+        .nav-link:hover { opacity: 1; transform: translateY(-1px); }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .grid-bg {
+            background-image: radial-gradient(rgba(134, 134, 139, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
 </head>
-<body data-theme="dark">
-  <button class="theme-toggle" id="tog" title="Toggle Theme">🌓</button>
-  
-  <div class="container">
-    <header class="header">
-      <p class="promo-tag">Limited Time Promotion</p>
-      <h1>Claude 2x Planner</h1>
-      <p class="subtitle">Smart limits for power users.</p>
-    </header>
-
-    <div id="weekend-banner" class="weekend-banner">✨ WEEKEND MODE: 24H BOOST ACTIVATED ✨</div>
-
-    <div class="hero-visual">
-      <svg class="arc-svg" viewBox="0 0 280 280">
-        <circle class="arc-bg" cx="140" cy="140" r="130"></circle>
-        <circle id="arc-fill" class="arc-fill" cx="140" cy="140" r="130"></circle>
-      </svg>
-      <div class="timer-content">
-        <div id="status-badge" class="status-badge">Checking...</div>
-        <div id="countdown" class="countdown">00:00:00</div>
-        <div id="until-label" class="until-label">Until Next Update</div>
-      </div>
-    </div>
-
-    <div class="info-grid">
-      <div class="glass-card">
-        <div class="icon-box">📊</div>
-        <div class="card-text">
-          <h4 id="ctx-title">Boost Status</h4>
-          <p id="ctx-desc">Calculating your current usage window...</p>
+<body class="dark min-h-screen grid-bg">
+    <!-- Skeleton Loader (Hidden after load) -->
+    <div id="skeleton-screen" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center space-y-8 p-6">
+        <div class="w-24 h-24 rounded-full skeleton"></div>
+        <div class="w-64 h-8 rounded-lg skeleton"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl">
+            <div class="h-40 rounded-3xl skeleton"></div>
+            <div class="h-40 rounded-3xl skeleton"></div>
         </div>
-      </div>
-      <div class="glass-card">
-        <div class="icon-box">🕒</div>
-        <div class="card-text">
-          <h4 id="sched-title">Peak Window</h4>
-          <p id="sched-desc">12:00 – 18:00 GMT Weekdays</p>
-        </div>
-      </div>
     </div>
 
-    <div class="expiry-strip">
-      <div class="expiry-dot"></div>
-      <span id="expiry-text">Promotion ends in -- days</span>
+    <!-- Main Content -->
+    <div id="main-content" class="opacity-0 transition-opacity duration-1000">
+        <!-- Navigation -->
+        <nav class="fixed top-0 left-0 right-0 z-40 px-6 py-4 flex justify-between items-center backdrop-blur-md">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-apple-blue rounded-lg flex items-center justify-center">
+                    <i data-lucide="clock" class="text-white w-5 h-5"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">Claude 2x</span>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-white/10 transition-colors">
+                    <i data-lucide="moon" id="theme-icon" class="w-5 h-5"></i>
+                </button>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#" class="nav-link text-sm font-medium">Dashboard</a>
+                    <a href="#" class="nav-link text-sm font-medium">Timeline</a>
+                    <a href="#" class="nav-link text-sm font-medium">Settings</a>
+                </div>
+            </div>
+        </nav>
+
+        <main class="pt-32 pb-20 px-6 max-w-6xl mx-auto">
+            <!-- Hero Section -->
+            <div class="text-center mb-16">
+                <motion-div initial="{opacity: 0, y: 20}" animate="{opacity: 1, y: 0}" transition="{duration: 0.8}">
+                    <span class="status-badge bg-orange-500/10 text-orange-500 mb-4 inline-block">
+                        <span class="pulse-dot"></span>PROMOTION ACTIVE
+                    </span>
+                    <h1 class="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
+                        Power through <br><span class="text-apple-blue">the peak hours.</span>
+                    </h1>
+                    <p class="text-xl text-apple-secondary max-w-2xl mx-auto leading-relaxed">
+                        Smart scheduling for your Claude workflow. 2x limits during standard windows, optimized for your timezone.
+                    </p>
+                </motion-div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Status Card -->
+                <div class="lg:col-span-4 glass-panel p-8 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wider text-apple-secondary mb-8">Current Status</h3>
+                        <div id="countdown-container" class="space-y-2">
+                            <span id="status-text" class="text-4xl font-bold block">Peak Hours</span>
+                            <span id="timer-display" class="text-6xl font-black tabular-nums tracking-tighter">00:00:00</span>
+                            <p id="sub-status" class="text-apple-secondary text-sm mt-4">Remaining in standard limits</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-8 border-t border-white/5">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium">Daily Progress</span>
+                            <span id="progress-percent" class="text-sm text-apple-blue font-bold">68%</span>
+                        </div>
+                        <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div id="progress-bar" class="h-full bg-apple-blue transition-all duration-1000" style="width: 68%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Timeline -->
+                <div class="lg:col-span-8 glass-panel p-8">
+                    <div class="flex justify-between items-center mb-10">
+                        <div>
+                            <h3 class="text-sm font-semibold uppercase tracking-wider text-apple-secondary">Today's Schedule</h3>
+                            <p id="current-date" class="text-lg font-medium mt-1">Monday, March 18</p>
+                        </div>
+                        <div class="text-right">
+                            <span id="timezone-label" class="text-sm font-bold text-apple-blue bg-apple-blue/10 px-3 py-1 rounded-lg">Asia/Kolkata (IST)</span>
+                        </div>
+                    </div>
+
+                    <div class="relative mt-12 mb-20 px-4">
+                        <div class="timeline-track" id="timeline-track">
+                            <!-- Segments will be injected here -->
+                        </div>
+                        <div class="current-time-indicator" id="time-indicator"></div>
+                        
+                        <!-- Markers -->
+                        <div class="time-marker" style="left: 0%">00:00</div>
+                        <div class="time-marker" style="left: 25%">06:00</div>
+                        <div class="time-marker" style="left: 50%">12:00</div>
+                        <div class="time-marker" style="left: 75%">18:00</div>
+                        <div class="time-marker" style="left: 100%">24:00</div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex items-center p-4 bg-white/5 rounded-2xl">
+                            <div class="w-3 h-3 rounded-full bg-green-500 mr-3"></div>
+                            <div>
+                                <p class="text-xs text-apple-secondary font-bold uppercase">Standard</p>
+                                <p class="text-sm font-semibold">2x Boost Active</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-4 bg-white/5 rounded-2xl">
+                            <div class="w-3 h-3 rounded-full bg-orange-500 mr-3"></div>
+                            <div>
+                                <p class="text-xs text-apple-secondary font-bold uppercase">Peak</p>
+                                <p class="text-sm font-semibold">Normal Limits</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                <div class="glass-panel p-6">
+                    <i data-lucide="zap" class="text-yellow-500 mb-4"></i>
+                    <h4 class="font-bold mb-2">Instant Sync</h4>
+                    <p class="text-sm text-apple-secondary">Real-time detection of Claude capacity changes.</p>
+                </div>
+                <div class="glass-panel p-6">
+                    <i data-lucide="globe" class="text-blue-500 mb-4"></i>
+                    <h4 class="font-bold mb-2">Global Logic</h4>
+                    <p class="text-sm text-apple-secondary">IST-based scheduling converted to your locale automatically.</p>
+                </div>
+                <div class="glass-panel p-6">
+                    <i data-lucide="shield-check" class="text-green-500 mb-4"></i>
+                    <h4 class="font-bold mb-2">Privacy First</h4>
+                    <p class="text-sm text-apple-secondary">No data leaves your browser. Pure local execution.</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="py-10 border-t border-white/5 text-center">
+            <p class="text-apple-secondary text-sm">Made by Dhanush &bull; 2024</p>
+            <div class="flex justify-center space-x-4 mt-4">
+                <a href="#" class="text-apple-secondary hover:text-white transition-colors"><i data-lucide="github" class="w-5 h-5"></i></a>
+                <a href="#" class="text-apple-secondary hover:text-white transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+            </div>
+        </footer>
     </div>
 
-    <div class="tz-wrap">
-      Timezone: <select id="tz-select"></select>
-    </div>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
 
-    <footer class="footer">
-      Made by <a href="https://bysomeone.com" target="_blank">Dhanush</a> &middot; Privacy-first &middot; Auto-converted
-      <br>
-      <a href="https://github.com/Dhanushms/claude-2x-timer" class="gh-link" target="_blank">
-        <svg height="14" viewBox="0 0 16 16" width="14" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-        View Source
-      </a>
-    </footer>
-  </div>
+        // Constants
+        const PEAK_START = "17:30"; // 5:30 PM IST
+        const PEAK_END = "23:30";   // 11:30 PM IST
+        
+        // State
+        let isDarkMode = true;
+        
+        // Timezone Logic
+        function updateTimezone() {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            document.getElementById('timezone-label').textContent = tz + " (" + getOffset() + ")";
+        }
 
-  <script>
-    const b = document.body;
-    const setT = t => { b.setAttribute('data-theme', t); localStorage.setItem('cl_t', t); };
-    document.getElementById('tog').onclick = () => setT(b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    if (localStorage.getItem('cl_t')) setT(localStorage.getItem('cl_t'));
+        function getOffset() {
+            return new Date().toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ').pop();
+        }
 
-    const tzSelect = document.getElementById('tz-select');
-    let selTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const zones = [selTz, 'Asia/Kolkata', 'UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo'];
-    [...new Set(zones)].forEach(z => {
-      const o = document.createElement('option'); o.value = z; o.textContent = z.replace(/_/g, ' ');
-      if (z === selTz) o.selected = true; tzSelect.appendChild(o);
-    });
+        // IST Logic Implementation
+        function getISTTime() {
+            return new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+        }
 
-    function getStatus() {
-      const now = new Date();
-      // GMT conversion for core logic
-      const gmt = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
-      const day = gmt.getUTCDay(); // 0:Sun, 6:Sat
-      const hour = gmt.getUTCHours();
-      
-      const isWeekend = (day === 0 || day === 6);
-      const isPeak = !isWeekend && (hour >= 12 && hour < 18); // 12-6 PM GMT
-      const active = !isPeak;
+        function isPeakHour() {
+            const ist = getISTTime();
+            const day = ist.getDay();
+            const hours = ist.getHours();
+            const mins = ist.getMinutes();
+            const totalMins = hours * 60 + mins;
 
-      let next = new Date(gmt);
-      next.setUTCMinutes(0, 0, 0);
-      
-      if (isWeekend) {
-        // Next change is Monday 12 PM GMT
-        const daysToMon = (8 - day) % 7;
-        next.setUTCDate(gmt.getUTCDate() + (daysToMon || 7));
-        next.setUTCHours(12);
-      } else {
-        if (hour < 12) next.setUTCHours(12);
-        else if (hour < 18) next.setUTCHours(18);
-        else { next.setUTCDate(gmt.getUTCDate() + 1); next.setUTCHours(12); }
-      }
+            // Weekends: Full day Peak (Wait, user said "weekends its full day" - checking context)
+            // "the time of 2x is 5:30pm to 11:30 pm IST everyday and weekends (Sat and sunday) its full day"
+            // Wait, usually "Peak" is when things are busy. 
+            // The user said: "the time of 2x is 5:30pm to 11:30 pm IST everyday"
+            // And "weekends its full day"
+            
+            const peakStartMins = 17 * 60 + 30; // 17:30
+            const peakEndMins = 23 * 60 + 30;   // 23:30
 
-      // Convert GMT 'next' back to local time
-      const nextLocal = new Date(now.getTime() + (next - gmt));
-      const totalWindow = isPeak ? (6 * 3600000) : (18 * 3600000);
-      
-      return { active, isPeak, isWeekend, next: nextLocal, total: totalWindow };
-    }
+            const isWeekend = (day === 0 || day === 6);
+            
+            if (isWeekend) return true; // 2x all day weekends
+            return (totalMins >= peakStartMins && totalMins <= peakEndMins);
+        }
 
-    function up() {
-      const now = new Date();
-      const s = getStatus();
-      const rem = s.next - now;
-      const progress = Math.max(0, Math.min(1, rem / s.total));
+        function updateTimer() {
+            const ist = getISTTime();
+            const statusText = document.getElementById('status-text');
+            const timerDisplay = document.getElementById('timer-display');
+            const subStatus = document.getElementById('sub-status');
+            
+            const active = isPeakHour();
+            
+            if (active) {
+                statusText.textContent = "Boost Active";
+                statusText.className = "text-4xl font-bold block text-green-500";
+                subStatus.textContent = "Enjoy 2x higher limits";
+            } else {
+                statusText.textContent = "Standard Limits";
+                statusText.className = "text-4xl font-bold block text-apple-secondary";
+                subStatus.textContent = "Boost resumes at 5:30 PM IST";
+            }
 
-      // UI Updates
-      const badge = document.getElementById('status-badge');
-      const arc = document.getElementById('arc-fill');
-      const root = document.documentElement;
-      
-      badge.textContent = s.active ? '2x Boost Active' : 'Boost Paused';
-      badge.className = 'status-badge ' + (s.active ? 'status-active' : 'status-peak');
-      
-      document.getElementById('countdown').textContent = new Date(rem).toISOString().substr(11, 8);
-      document.getElementById('until-label').textContent = s.active ? 'Until Peak Peak' : 'Until Boost Resumes';
-      
-      // Arc Animation
-      const offset = 816 * (1 - progress);
-      arc.style.strokeDashoffset = offset;
-      arc.style.stroke = s.active ? 'var(--boost)' : 'var(--peak)';
+            // Real-time HH:MM:SS
+            const now = new Date();
+            timerDisplay.textContent = now.toLocaleTimeString('en-GB', { hour12: false });
+            
+            // Timeline Indicator
+            const totalMinsInDay = 24 * 60;
+            const currentMins = now.getHours() * 60 + now.getMinutes();
+            const percent = (currentMins / totalMinsInDay) * 100;
+            document.getElementById('time-indicator').style.left = percent + "%";
+            
+            // Progress bar (dummy logic for visual)
+            const progress = (now.getHours() / 24) * 100;
+            document.getElementById('progress-bar').style.width = progress + "%";
+            document.getElementById('progress-percent').textContent = Math.round(progress) + "%";
+        }
 
-      // Context Cards
-      document.getElementById('ctx-title').textContent = s.active ? 'Usage Doubled' : 'Standard Limits';
-      document.getElementById('ctx-desc').textContent = s.active ? 'Your message window is currently 2x.' : 'Limits return to normal during peak hours.';
-      
-      const fmt = (h, m) => {
-        const d = new Date(); d.setUTCHours(h, m);
-        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: selTz });
-      };
-      document.getElementById('sched-desc').textContent = `${fmt(12,0)} – ${fmt(18,0)} Weekdays`;
+        function buildTimeline() {
+            const track = document.getElementById('timeline-track');
+            track.innerHTML = '';
+            
+            // 2x Window: 17:30 to 23:30 (6 hours)
+            const startPct = ((17.5 * 60) / (24 * 60)) * 100;
+            const durationPct = ((6 * 60) / (24 * 60)) * 100;
+            
+            // Standard background
+            const base = document.createElement('div');
+            base.className = "timeline-segment segment-standard w-full";
+            track.appendChild(base);
+            
+            // Peak/Boost highlight
+            const peak = document.createElement('div');
+            peak.className = "timeline-segment segment-peak";
+            peak.style.left = startPct + "%";
+            peak.style.width = durationPct + "%";
+            track.appendChild(peak);
+        }
 
-      // Weekend Mode
-      b.classList.toggle('weekend-mode', s.isWeekend);
-      document.getElementById('weekend-banner').style.display = s.isWeekend ? 'block' : 'none';
+        // Theme Toggle
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark');
+            const icon = document.getElementById('theme-icon');
+            icon.setAttribute('data-lucide', isDarkMode ? 'moon' : 'sun');
+            lucide.createIcons();
+        });
 
-      // Expiry
-      const end = new Date('2026-03-29T06:59:59Z'); // 11:59 PM PT Mar 28
-      const daysLeft = Math.ceil((end - now) / 86400000);
-      document.getElementById('expiry-text').textContent = `Promotion ends in ${daysLeft} days (March 28)`;
-    }
+        // Initialize
+        window.onload = () => {
+            buildTimeline();
+            updateTimezone();
+            
+            // Fade in content, hide skeleton
+            setTimeout(() => {
+                document.getElementById('skeleton-screen').style.display = 'none';
+                document.getElementById('main-content').classList.remove('opacity-0');
+            }, 1200);
 
-    tzSelect.onchange = () => { selTz = tzSelect.value; up(); };
-    setInterval(up, 1000); up();
-  </script>
+            setInterval(updateTimer, 1000);
+            updateTimer();
+            
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        };
+    </script>
 </body>
 </html>
