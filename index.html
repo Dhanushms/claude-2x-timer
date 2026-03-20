@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 2x Timer</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0f0f0f; color: #fff;
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 24px;
+}
+h1 { font-size: 1.1rem; font-weight: 500; color: #888; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.clock { font-size: 3.2rem; font-weight: 700; margin-bottom: 4px; }
+.date-label { font-size: 0.85rem; color: #666; margin-bottom: 32px; }
+.status-badge { display: inline-block; padding: 10px 28px; border-radius: 999px; font-size: 1.1rem; font-weight: 700; margin-bottom: 32px; }
+.status-badge.two-x { background: #16a34a; }
+.status-badge.one-x { background: #dc2626; }
+.bar-wrap { width: 100%; max-width: 480px; margin-bottom: 32px; }
+.bar-label { font-size: 0.75rem; color: #555; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+.bar { position: relative; height: 12px; border-radius: 999px; overflow: hidden; display: flex; }
+.seg { height: 100%; }
+.seg.green { background: #16a34a; }
+.seg.red { background: #dc2626; }
+.bar-indicator { position: absolute; top: -3px; width: 4px; height: 18px; background: #fff; border-radius: 2px; transform: translateX(-50%); transition: left 1s linear; }
+.bar-times { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.7rem; color: #444; }
+.next-card { width: 100%; max-width: 480px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; padding: 20px 24px; }
+.next-title { font-size: 0.7rem; color: #555; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.next-countdown { font-size: 2.4rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 4px; }
+.next-countdown.two-x { color: #16a34a; }
+.next-countdown.one-x { color: #dc2626; }
+.next-info { font-size: 0.82rem; color: #666; }
+</style>
+</head>
+<body>
+<h1>Claude 2x</h1>
+<div class="clock" id="clock">--:--:--</div>
+<div class="date-label" id="dateLabel">Loading...</div>
+<div class="status-badge" id="statusBadge">--</div>
+<div class="bar-wrap">
+  <div class="bar-label">Today - IST (24 hrs)</div>
+  <div class="bar" id="bar"><div class="bar-indicator" id="indicator"></div></div>
+  <div class="bar-times"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>5:30 PM</span><span>11:30 PM</span><span>12 AM</span></div>
+</div>
+<div class="next-card">
+  <div class="next-title" id="nextTitle">Next window</div>
+  <div class="next-countdown" id="nextCountdown">--:--:--</div>
+  <div class="next-info" id="nextInfo"></div>
+</div>
+<script>
+function getIST(){const n=new Date();return new Date(n.getTime()+n.getTimezoneOffset()*60000+19800000);}
+function is2x(t){const d=t.getDay();if(d===0||d===6)return true;const m=t.getHours()*60+t.getMinutes();return m>=1050&&m<1410;}
+function pad(n){return String(n).padStart(2,'0');}
+function buildBar(){const bar=document.getElementById('bar');const ind=document.getElementById('indicator');bar.innerHTML='';bar.appendChild(ind);const day=getIST().getDay();const segs=(day===0||day===6)?[{c:'green',f:0,t:1440}]:[{c:'red',f:0,t:1050},{c:'green',f:1050,t:1410},{c:'red',f:1410,t:1440}];segs.forEach(s=>{const el=document.createElement('div');el.className='seg '+s.c;el.style.width=((s.t-s.f)/1440*100)+'%';bar.insertBefore(el,ind);});}
+function nextWindow(ist){const day=ist.getDay();const mins=ist.getHours()*60+ist.getMinutes()+ist.getSeconds()/60;const a=is2x(ist);if(a){if(day===0||day===6){const d=(8-day)%7||7;return{secs:((d*1440)-mins)*60,label:'Until weekday 1x - Mon 12:00 am IST',type:'one-x'};}else return{secs:(1410-mins)*60,label:'2x ends at 11:30 pm IST',type:'one-x'};}else{if(day!==0&&day!==6){if(mins<1050)return{secs:(1050-mins)*60,label:'2x starts at 5:30 pm IST',type:'two-x'};else{const nextDay=(day+1)%7;if(nextDay===6||nextDay===0)return{secs:(1440-mins)*60,label:'Weekend 2x starts at midnight IST',type:'two-x'};else return{secs:(1440-mins+1050)*60,label:'2x starts tomorrow at 5:30 pm IST',type:'two-x'};}}return{secs:0,label:'',type:'two-x'};}}
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function tick(){const ist=getIST();const h=ist.getHours(),m=ist.getMinutes(),s=ist.getSeconds();document.getElementById('clock').textContent=pad(h)+':'+pad(m)+':'+pad(s);document.getElementById('dateLabel').textContent=DAYS[ist.getDay()]+', '+ist.getDate()+' '+MON[ist.getMonth()]+' '+ist.getFullYear()+' IST';const badge=document.getElementById('statusBadge');const a=is2x(ist);badge.textContent=a?'2x Active':'1x Active';badge.className='status-badge '+(a?'two-x':'one-x');document.getElementById('indicator').style.left=((h*60+m+s/60)/1440*100)+'%';const nw=nextWindow(ist);document.getElementById('nextTitle').textContent=a?'Currently 2x - ends in':'Currently 1x - 2x starts in';const cd=document.getElementById('nextCountdown');const sec=Math.max(0,Math.floor(nw.secs));cd.textContent=pad(Math.floor(sec/3600))+':'+pad(Math.floor((sec%3600)/60))+':'+pad(sec%60);cd.className='next-countdown '+nw.type;document.getElementById('nextInfo').textContent=nw.label;}
+buildBar();tick();setInterval(tick,1000);
+</script>
+</body>
+</html>
