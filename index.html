@@ -1,142 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Claude 2x Planner</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-<style>
-:root{--p:#0F766E;--bg:#FFF;--s:#F8FAFC;--t1:#0F172A;--t2:#334155;--acc:#0EA5E9;--bor:#E2E8F0;--rad:16px}
-[data-theme=dark]{--p:#14B8A6;--bg:#020617;--s:#0F172A;--t1:#F8FAFC;--t2:#CBD5E1;--bor:#334155}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);transition:.3s;line-height:1.6}
-.container{max-width:500px;margin:0 auto;padding:60px 20px}
-.hero{text-align:center;margin-bottom:40px}
-h1{font-size:2.2rem;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--p),var(--acc));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.promo{background:rgba(15,118,110,.1);border:1px solid var(--p);border-radius:12px;padding:12px;text-align:center;margin-bottom:30px;font-size:13px;color:var(--p);font-weight:600}
-.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:30px}
-.card{background:var(--s);border:1px solid var(--bor);padding:20px;border-radius:var(--rad)}
-.badge{display:inline-block;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:10px}
-.badge-live{background:rgba(16,185,129,.1);color:#10B981}
-.badge-boost{background:rgba(14,165,233,.1);color:var(--acc)}
-h3{font-size:16px;margin-bottom:4px}
-.time-text{font-size:14px;color:var(--t2)}
-.countdown{font-size:24px;font-weight:800;margin-top:8px;color:var(--p)}
-.progress{width:100%;height:6px;background:var(--bor);border-radius:8px;margin-top:12px;overflow:hidden}
-.progress-bar{height:100%;background:var(--p);transition:width .5s}
-.timeline{margin-top:30px;padding-left:15px;border-left:2px solid var(--bor)}
-.item{position:relative;margin-bottom:25px;padding-left:20px}
-.item::before{content:"";position:absolute;left:-24px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid var(--p)}
-.item.boost::before{border-color:var(--acc)}
-.btn-group{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:40px}
-.btn{padding:12px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;border:none;text-align:center;text-decoration:none}
-.btn-p{background:var(--p);color:#fff}
-.btn-o{background:transparent;border:1px solid var(--bor);color:var(--t1)}
-.footer{margin-top:50px;text-align:center;font-size:11px;color:var(--t2)}
-.theme-btn{position:fixed;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:var(--s);border:1px solid var(--bor);cursor:pointer;display:flex;align-items:center;justify-content:center}
-.tz-selector{margin-top:20px;text-align:center;font-size:12px;color:var(--t2)}
-select{background:transparent;border:none;color:var(--p);font-weight:600;cursor:pointer;outline:none}
-@media(max-width:400px){.card-grid,.btn-group{grid-template-columns:1fr}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude 2x Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --p: #0F766E; --bg: #020617; --s: #0F172A; --t1: #F8FAFC; --t2: #94A3B8;
+      --acc: #14B8A6; --bor: #1E293B; --rad: 16px; --skel: #1E293B;
+    }
+    [data-theme=light] {
+      --p: #0D9488; --bg: #F8FAFC; --s: #FFFFFF; --t1: #0F172A; --t2: #64748B;
+      --bor: #E2E8F0; --skel: #F1F5F9;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); transition: .3s; line-height: 1.6; }
+    .container { max-width: 500px; margin: 0 auto; padding: 40px 20px; }
+    .hero { text-align: center; margin-bottom: 32px; }
+    h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; background: linear-gradient(135deg, var(--p), var(--acc)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .promo { background: rgba(20, 184, 166, 0.1); border: 1px solid var(--p); border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 24px; font-size: 13px; color: var(--p); font-weight: 600; display: none; animation: fadeIn 0.5s ease-out; }
+    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+    .card { background: var(--s); border: 1px solid var(--bor); padding: 20px; border-radius: var(--rad); transition: transform 0.2s, border-color 0.2s; position: relative; overflow: hidden; }
+    .card:hover { transform: translateY(-2px); border-color: var(--p); }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px; }
+    .badge-live { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+    .badge-next { background: rgba(14, 165, 233, 0.1); color: #0EA5E9; }
+    h3 { font-size: 15px; margin-bottom: 4px; color: var(--t2); }
+    .time-val { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .countdown { font-size: 28px; font-weight: 800; color: var(--p); font-variant-numeric: tabular-nums; }
+    .progress { width: 100%; height: 6px; background: var(--bor); border-radius: 10px; margin-top: 16px; overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--p); transition: width 1s linear; }
+    .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--t2); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .section-title::after { content: ""; height: 1px; flex: 1; background: var(--bor); }
+    .timeline { position: relative; padding-left: 24px; }
+    .timeline::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; background: var(--bor); }
+    .item { position: relative; margin-bottom: 24px; padding: 16px; background: var(--s); border: 1px solid var(--bor); border-radius: 12px; transition: 0.2s; }
+    .item:hover { border-color: var(--p); background: rgba(15, 118, 110, 0.02); }
+    .item::before { content: ""; position: absolute; left: -29px; top: 22px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--bor); z-index: 1; transition: 0.2s; }
+    .item.active::before { border-color: var(--p); background: var(--p); box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.15); }
+    .item.boost { border-left: 4px solid var(--acc); }
+    .item.boost::before { border-color: var(--acc); }
+    .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .item-title { font-size: 14px; font-weight: 700; }
+    .item-time { font-size: 13px; color: var(--t2); }
+    .item-badge { font-size: 9px; padding: 2px 6px; background: rgba(20, 184, 166, 0.1); color: var(--acc); border-radius: 4px; font-weight: 700; }
+    .skeleton { background: var(--skel); position: relative; overflow: hidden; border-radius: 4px; }
+    .skeleton::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); animation: loading 1.5s infinite; }
+    [data-theme=light] .skeleton::after { background: linear-gradient(90deg, transparent, rgba(0,0,0,0.03), transparent); }
+    @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 32px; }
+    .btn { padding: 14px; border-radius: 12px; font-weight: 600; font-size: 13px; cursor: pointer; border: none; text-align: center; text-decoration: none; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-p { background: var(--p); color: #fff; }
+    .btn-p:hover { background: var(--acc); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2); }
+    .btn-o { background: var(--s); border: 1px solid var(--bor); color: var(--t1); }
+    .btn-o:hover { border-color: var(--p); color: var(--p); }
+    .theme-btn { position: fixed; top: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: var(--s); border: 1px solid var(--bor); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; transition: 0.2s; }
+    .theme-btn:hover { border-color: var(--p); transform: rotate(15deg); }
+    .footer { margin-top: 48px; text-align: center; font-size: 12px; color: var(--t2); }
+    .footer a { color: var(--p); text-decoration: none; font-weight: 600; }
+    .tz-selector { margin-top: 16px; text-align: center; }
+    select { background: transparent; border: none; color: var(--p); font-weight: 600; cursor: pointer; outline: none; font-size: 12px; padding: 4px; border-radius: 4px; }
+    select:hover { background: rgba(15, 118, 110, 0.05); }
+    @media(max-width: 400px) { .card-grid, .btn-group { grid-template-columns: 1fr; } }
+  </style>
 </head>
-<body>
-<button class="theme-btn" id="tog">🌓</button>
-<div class="container">
-<header class="hero">
-<h1>Claude 2x Planner</h1>
-<p style="color:var(--t2);font-size:14px">Intelligent scheduling for message limits.</p>
-</header>
-<div id="promo" class="promo" style="display:none">🚀 2x Usage Boost Active</div>
-<div class="card-grid">
-<div class="card">
-<span class="badge badge-live">Live</span>
-<h3>Active Now</h3>
-<p id="c-reset" class="time-text">Loading...</p>
-<div class="countdown" id="countdown">--:--</div>
-<div class="progress"><div class="progress-bar" id="progress"></div></div>
-</div>
-<div class="card">
-<span class="badge" style="background:rgba(14,165,233,.1);color:var(--acc)">Next</span>
-<h3>Upcoming</h3>
-<p id="n-start" class="time-text">Waiting...</p>
-</div>
-</div>
-<div class="timeline" id="tl"></div>
-<div class="btn-group">
-<button class="btn btn-p" id="abc">Apple Calendar</button>
-<button class="btn btn-o" id="gbc">Google Calendar</button>
-</div>
-<div class="tz-selector">Timezone: <select id="tz-select"></select></div>
-<footer class="footer">Designed by <a href="https://bysomeone.com" style="color:var(--p);text-decoration:none;font-weight:600">Bysomeone</a></footer>
-</div>
-<script>
-const b=document.body;
-const setT=t=>{b.setAttribute('data-theme',t);localStorage.setItem('cl_t',t)};
-document.getElementById('tog').onclick=()=>setT(b.getAttribute('data-theme')==='dark'?'light':'dark');
-setT(localStorage.getItem('cl_t')||(window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+<body data-theme="dark">
+  <button class="theme-btn" id="tog" title="Toggle Theme">🌓</button>
+  <div class="container">
+    <header class="hero">
+      <h1>Claude 2x Planner</h1>
+      <p style="color:var(--t2);font-size:14px">Intelligent scheduling for message limits</p>
+    </header>
 
-const tzSelect=document.getElementById('tz-select');
-const currentTz=Intl.DateTimeFormat().resolvedOptions().timeZone;
-const zones=[currentTz,'UTC','Asia/Kolkata','America/Los_Angeles','America/New_York','Europe/London','Europe/Paris','Asia/Tokyo','Australia/Sydney'];
-[...new Set(zones)].forEach(z=>{
-const o=document.createElement('option');o.value=z;o.textContent=z.replace(/_/g,' ');
-if(z===currentTz)o.selected=true;
-tzSelect.appendChild(o);
-});
+    <div id="promo" class="promo">🚀 2x Usage Boost Active</div>
 
-function isBoost(d){
-const s=new Date('2026-03-13T00:00:00Z'),e=new Date('2026-03-29T00:00:00Z');
-if(d<s||d>e)return false;
-const day=d.getUTCDay();
-if(day===0||day===6)return true;
-const h=d.getUTCHours();
-return!(h>=12&&h<18);
-}
+    <div class="card-grid" id="main-cards">
+      <div class="card">
+        <span class="badge badge-live">Live Now</span>
+        <h3>Next Reset</h3>
+        <div id="c-reset" class="time-val"><div class="skeleton" style="width:80px;height:18px"></div></div>
+        <div id="countdown" class="countdown">--:--:--</div>
+        <div class="progress"><div class="progress-bar" id="progress" style="width:0%"></div></div>
+      </div>
+      <div class="card">
+        <span class="badge badge-next">Status</span>
+        <h3 id="status-label">Current State</h3>
+        <div id="n-start" class="time-val"><div class="skeleton" style="width:100px;height:18px"></div></div>
+        <div id="state-desc" style="font-size:13px;color:var(--t2)">Checking boost schedule...</div>
+      </div>
+    </div>
 
-function up(){
-const now=new Date();
-const h5=5*60*60*1000;
-const nowMs=now.getTime();
-const curWindow=Math.floor(nowMs/h5)*h5;
-const nextWindow=curWindow+h5;
-const remaining=nextWindow-nowMs;
+    <div class="section-title">Timeline</div>
+    <div id="tl" class="timeline">
+      <div class="item"><div class="skeleton" style="height:60px;border-radius:8px"></div></div>
+      <div class="item"><div class="skeleton" style="height:60px;border-radius:8px"></div></div>
+      <div class="item"><div class="skeleton" style="height:60px;border-radius:8px"></div></div>
+    </div>
 
-const fmt=d=>new Date(d).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-const fmtSec=ms=>{const m=Math.floor(ms/60000);const s=Math.floor((ms%60000)/1000);return`${m}:${s<10?'0':''}${s}`};
+    <div class="btn-group">
+      <button id="abc" class="btn btn-p">Add to Apple Calendar</button>
+      <button id="gbc" class="btn btn-o">Google Calendar</button>
+    </div>
 
-document.getElementById('c-reset').textContent='Resets at '+fmt(nextWindow);
-document.getElementById('n-start').textContent='Starts at '+fmt(nextWindow);
-document.getElementById('countdown').textContent=fmtSec(remaining);
-document.getElementById('progress').style.width=(100-remaining/h5*100)+'%';
-document.getElementById('promo').style.display=isBoost(now)?'block':'none';
+    <div class="tz-selector">
+      <select id="tz-select"></select>
+    </div>
 
-let h='';
-for(let i=0;i<3;i++){
-const w=nextWindow+(i-1)*h5;
-const boost=isBoost(new Date(w));
-h+=`<div class="item ${boost?'boost':''}">
-<div style="display:flex;justify-content:space-between">
-<h4 style="font-size:14px">Window ${i+1}</h4>
-${boost?'<span class="badge badge-boost">2x Boost</span>':''}
-</div>
-<p class="time-text">${fmt(w)} – ${fmt(w+h5)}</p>
-</div>`;
-}
-document.getElementById('tl').innerHTML=h;
-}
+    <footer class="footer">
+      Designed by <a href="https://bysomeone.com" target="_blank">Bysomeone</a>
+    </footer>
+  </div>
 
-up();tzSelect.onchange=up;setInterval(up,1000);
+  <script>
+    const b = document.body;
+    const setT = t => { b.setAttribute('data-theme', t); localStorage.setItem('cl_t', t); };
+    document.getElementById('tog').onclick = () => setT(b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    if (localStorage.getItem('cl_t')) setT(localStorage.getItem('cl_t'));
 
-document.getElementById('abc').onclick=()=>{
-const f=d=>d.toISOString().replace(/-|:|\.\d+/g,'');
-const l=['BEGIN:VCALENDAR','VERSION:2.0','BEGIN:VEVENT','SUMMARY:Claude Reset','DTSTART:'+f(new Date()),'DTEND:'+f(new Date(Date.now()+3600000)),'RRULE:FREQ=DAILY;UNTIL=20260329T235959Z','END:VEVENT','END:VCALENDAR'];
-const blob=new Blob([l.join('\r\n')],{type:'text/calendar'});
-const u=URL.createObjectURL(blob);
-const a=document.createElement('a');a.href=u;a.download='claude.ics';a.click();
-};
-document.getElementById('gbc').onclick=()=>window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Claude+Reset','_blank');
-</script>
+    const tzSelect = document.getElementById('tz-select');
+    let selTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const zones = [selTz, 'Asia/Kolkata', 'UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo'];
+    [...new Set(zones)].forEach(z => {
+      const o = document.createElement('option'); o.value = z; o.textContent = z.replace(/_/g, ' ');
+      if (z === selTz) o.selected = true; tzSelect.appendChild(o);
+    });
+
+    // Boost Logic: 5:30 PM - 11:30 PM IST Weekdays, Full Day Weekends
+    function getBoostStatus(date) {
+      // Convert to IST (UTC+5:30)
+      const istDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+      const day = istDate.getDay(); // 0: Sun, 6: Sat
+      const hours = istDate.getHours();
+      const mins = istDate.getMinutes();
+      const totalMins = hours * 60 + mins;
+
+      const isWeekend = (day === 0 || day === 6);
+      const startMins = 17 * 60 + 30; // 5:30 PM
+      const endMins = 23 * 60 + 30;   // 11:30 PM
+      
+      const active = isWeekend || (totalMins >= startMins && totalMins < endMins);
+      
+      // Calculate next transition
+      let next = new Date(istDate);
+      if (isWeekend) {
+        // Next transition is Monday 5:30 PM (End of weekend boost, but starts weekday off-boost)
+        // Actually, let's just find the next 5:30 PM or 11:30 PM IST
+        next.setHours(17, 30, 0, 0);
+        if (next <= istDate) next.setDate(next.getDate() + 1);
+      } else {
+        if (totalMins < startMins) next.setHours(17, 30, 0, 0);
+        else if (totalMins < endMins) next.setHours(23, 30, 0, 0);
+        else { next.setDate(next.getDate() + 1); next.setHours(17, 30, 0, 0); }
+      }
+      
+      // Convert back to local time for the timer
+      const istOffset = 330; // Minutes
+      const localOffset = date.getTimezoneOffset();
+      const diff = (istOffset + localOffset) * 60000;
+      const nextLocal = new Date(next.getTime() - diff);
+      
+      return { active, next: nextLocal };
+    }
+
+    function up() {
+      const now = new Date();
+      const status = getBoostStatus(now);
+      const remaining = status.next - now;
+
+      const fmt = (d, tz) => new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: tz });
+      const fmtFull = ms => {
+        const h = Math.floor(ms / 3600000);
+        const m = Math.floor((ms % 3600000) / 60000);
+        const s = Math.floor((ms % 60000) / 1000);
+        return `${h > 0 ? h + ':' : ''}${m < 10 && h > 0 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      };
+
+      document.getElementById('c-reset').textContent = 'Next change at ' + fmt(status.next, selTz);
+      document.getElementById('countdown').textContent = fmtFull(remaining);
+      document.getElementById('promo').style.display = status.active ? 'block' : 'none';
+      
+      const totalWindow = status.active ? (6 * 60 * 60 * 1000) : (18 * 60 * 60 * 1000); 
+      // Simplified progress based on 24h cycle if weekend, or 6h/18h cycle
+      document.getElementById('progress').style.width = Math.min(100, (1 - remaining / (6 * 3600000)) * 100) + '%';
+
+      document.getElementById('status-label').textContent = status.active ? 'Boost Active' : 'Normal Usage';
+      document.getElementById('n-start').textContent = status.active ? 'Ends at ' + fmt(status.next, selTz) : 'Starts at ' + fmt(status.next, selTz);
+      document.getElementById('state-desc').textContent = status.active ? 'Message limits are doubled.' : 'Standard limits apply.';
+
+      let h = '';
+      for (let i = 0; i < 4; i++) {
+        const checkTime = new Date(now.getTime() + i * 6 * 3600000);
+        const s = getBoostStatus(checkTime);
+        const timeStr = fmt(checkTime, selTz);
+        h += `
+          <div class="item ${s.active ? 'boost' : ''} ${i === 0 ? 'active' : ''}">
+            <div class="item-header">
+              <span class="item-title">Window ${i + 1}</span>
+              ${s.active ? '<span class="item-badge">2X BOOST</span>' : ''}
+            </div>
+            <div class="item-time">${timeStr} onwards</div>
+          </div>
+        `;
+      }
+      document.getElementById('tl').innerHTML = h;
+    }
+
+    tzSelect.onchange = () => { selTz = tzSelect.value; up(); };
+    setInterval(up, 1000);
+    up();
+
+    document.getElementById('abc').onclick = () => {
+      window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Claude+2x+Boost&details=Check+planner+at+claude.dhanushms.com', '_blank');
+    };
+    document.getElementById('gbc').onclick = () => {
+      window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Claude+2x+Boost', '_blank');
+    };
+  </script>
 </body>
 </html>
