@@ -131,6 +131,7 @@
             <div class="card-label" id="cdLabel">Countdown</div>
             <div class="countdown" id="countdown">--:--:--</div>
             <div class="card-info" id="cdInfo">Calculating next window...</div>
+            <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 12px; font-weight: 500;" id="endLabel"></div>
             <div class="cal-actions">
                 <a href="#" class="cal-btn" id="googleCalBtn">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
@@ -269,6 +270,14 @@
 
             const tzTarget = new Date(target.toLocaleString("en-US", {timeZone: currentTz}));
             document.getElementById('cdInfo').textContent = (active ? 'Ends at ' : 'Starts at ') + tzTarget.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            // "It's going to end in" secondary label
+            const endLabel = document.getElementById('endLabel');
+            if (active) {
+                const timeStr = h > 0 ? `${h}h ${m}m` : `${m}m ${s}s`;
+                endLabel.textContent = `2x is going to end in ${timeStr}. Plan your messages!`;
+            } else { endLabel.textContent = ""; }
+
             if (tzNow.getMinutes() === 0 && tzNow.getSeconds() === 0) renderTimeline();
         }
 
@@ -302,13 +311,11 @@
             const windows = getNextWindows();
             const next = windows.find(w => w.start > new Date());
             if (!next) return;
-            const startStr = next.start.toISOString().replace(/-|:|\.\d+/g, '');
-            const endStr = next.end.toISOString().replace(/-|:|\.\d+/g, '');
+            const startStr = next.start.toISOString().replace(/-|:|\\.\\d+/g, '');
+            const endStr = next.end.toISOString().replace(/-|:|\\.\\d+/g, '');
             const title = "Claude 2x Boost Window";
             const details = "Time to get more from Claude! This window is 2x speed.";
-            
             document.getElementById('googleCalBtn').href = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startStr}/${endStr}&details=${encodeURIComponent(details)}&location=Claude.ai`;
-            
             const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
@@ -323,10 +330,8 @@ END:VCALENDAR`;
                 e.preventDefault();
                 const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
                 const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url; link.setAttribute('download', 'claude-boost.ics');
-                document.body.appendChild(link); link.click();
-                document.body.removeChild(link);
+                const link = document.createElement('a'); link.href = url; link.setAttribute('download', 'claude-boost.ics');
+                document.body.appendChild(link); link.click(); document.body.removeChild(link);
             };
         }
 
