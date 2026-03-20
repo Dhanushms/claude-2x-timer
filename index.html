@@ -20,8 +20,8 @@
             --color-primary-hover: #0D9488;  /* Teal 600 */
             --color-bg: #FFFFFF;
             --color-surface: #F8FAFC;       /* Slate 50 */
-            --color-text-primary: #0F172A;  /* Slate 900 - 16.9:1 contrast */
-            --color-text-secondary: #334155; /* Slate 700 - 9.7:1 contrast */
+            --color-text-primary: #0F172A;  /* Slate 900 */
+            --color-text-secondary: #334155; /* Slate 700 */
             --color-success: #047857;       /* Emerald 700 */
             --color-border: #E2E8F0;        /* Slate 200 */
             --color-accent: #0EA5E9;        /* Sky 500 */
@@ -65,16 +65,16 @@
 
         /* Dark Mode Override */
         [data-theme="dark"] {
-            --color-primary: #14B8A6;        /* Teal 500 */
-            --color-primary-hover: #2DD4BF;  /* Teal 400 */
-            --color-bg: #020617;            /* Slate 950 */
-            --color-surface: #0F172A;       /* Slate 900 */
-            --color-text-primary: #F8FAFC;  /* Slate 50 - 17.3:1 contrast */
-            --color-text-secondary: #CBD5E1; /* Slate 300 - 10.4:1 contrast */
-            --color-success: #10B981;       /* Emerald 500 */
-            --color-border: #334155;        /* Slate 700 */
-            --color-accent: #38BDF8;        /* Sky 400 */
-            --color-muted: #94A3B8;         /* Slate 400 */
+            --color-primary: #14B8A6;
+            --color-primary-hover: #2DD4BF;
+            --color-bg: #020617;
+            --color-surface: #0F172A;
+            --color-text-primary: #F8FAFC;
+            --color-text-secondary: #CBD5E1;
+            --color-success: #10B981;
+            --color-border: #334155;
+            --color-accent: #38BDF8;
+            --color-muted: #94A3B8;
 
             --gradient-primary: linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%);
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
@@ -85,18 +85,8 @@
         /* ═══════════════════════════════════════════════════════════
            BASE STYLES
            ═══════════════════════════════════════════════════════════ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            scroll-behavior: smooth;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             font-size: var(--font-size-base);
@@ -107,23 +97,12 @@
             transition: background-color var(--transition-slow), color var(--transition-slow);
         }
 
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: var(--space-2xl) var(--space-lg);
-        }
+        .container { width: 100%; max-width: 800px; margin: 0 auto; padding: var(--space-2xl) var(--space-lg); }
 
         /* ═══════════════════════════════════════════════════════════
            HERO SECTION
            ═══════════════════════════════════════════════════════════ */
-        .hero {
-            text-align: center;
-            margin-bottom: var(--space-2xl);
-            padding: var(--space-xl) 0;
-            position: relative;
-        }
-
+        .hero { text-align: center; margin-bottom: var(--space-2xl); padding: var(--space-xl) 0; }
         .hero h1 {
             font-size: clamp(2rem, 5vw, 3rem);
             font-weight: 700;
@@ -133,24 +112,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
-        .hero p {
-            font-size: var(--font-size-lg);
-            color: var(--color-text-secondary);
-            max-width: 500px;
-            margin: 0 auto;
-        }
+        .hero p { font-size: var(--font-size-lg); color: var(--color-text-secondary); max-width: 500px; margin: 0 auto; }
 
         /* ═══════════════════════════════════════════════════════════
            STATUS CARDS
            ═══════════════════════════════════════════════════════════ */
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: var(--space-lg);
-            margin-bottom: var(--space-2xl);
-        }
-
+        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-2xl); }
         .card {
             background: var(--color-surface);
             border: 1px solid var(--color-border);
@@ -159,132 +126,43 @@
             box-shadow: var(--shadow-sm);
             transition: transform var(--transition-base), box-shadow var(--transition-base);
         }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--color-primary);
-        }
-
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--color-primary); }
         .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 12px;
-            border-radius: var(--radius-full);
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: var(--space-md);
+            display: inline-flex; align-items: center; padding: 4px 12px; border-radius: var(--radius-full);
+            font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-md);
         }
-
-        .badge-live {
-            background: rgba(4, 120, 87, 0.1);
-            color: var(--color-success);
-            border: 1px solid rgba(4, 120, 87, 0.2);
-        }
-
-        .badge-live::before {
-            content: "";
-            width: 8px;
-            height: 8px;
-            background: var(--color-success);
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+        .badge-live { background: rgba(4, 120, 87, 0.1); color: var(--color-success); border: 1px solid rgba(4, 120, 87, 0.2); }
+        .badge-live::before { content: ""; width: 8px; height: 8px; background: var(--color-success); border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 
         /* ═══════════════════════════════════════════════════════════
            TIMELINE
            ═══════════════════════════════════════════════════════════ */
-        .timeline {
-            position: relative;
-            padding-left: var(--space-2xl);
-        }
-
-        .timeline::before {
-            content: "";
-            position: absolute;
-            left: 7px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--color-border);
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: var(--space-xl);
-        }
-
+        .timeline { position: relative; padding-left: var(--space-2xl); }
+        .timeline::before { content: ""; position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: var(--color-border); }
+        .timeline-item { position: relative; margin-bottom: var(--space-xl); }
         .timeline-dot {
-            position: absolute;
-            left: -33px;
-            top: 4px;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--color-bg);
-            border: 3px solid var(--color-primary);
-            z-index: 1;
+            position: absolute; left: -33px; top: 4px; width: 16px; height: 16px; border-radius: 50%;
+            background: var(--color-bg); border: 3px solid var(--color-primary); z-index: 1;
         }
-
         .timeline-content {
-            background: var(--color-surface);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-lg);
-            padding: var(--space-md);
-            transition: all var(--transition-base);
+            background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+            padding: var(--space-md); transition: all var(--transition-base);
         }
-
-        .timeline-item.active .timeline-content {
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
-        }
+        .timeline-item.active .timeline-content { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1); }
 
         /* ═══════════════════════════════════════════════════════════
            THEME TOGGLE
            ═══════════════════════════════════════════════════════════ */
         .theme-toggle {
-            position: fixed;
-            top: var(--space-lg);
-            right: var(--space-lg);
-            background: var(--color-surface);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-full);
-            width: 44px;
-            height: 44px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-sm);
-            transition: all var(--transition-base);
-            z-index: 1000;
+            position: fixed; top: var(--space-lg); right: var(--space-lg);
+            background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-full);
+            width: 44px; height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: var(--shadow-sm); transition: all var(--transition-base); z-index: 1000;
         }
-
-        .theme-toggle:hover {
-            background: var(--color-primary);
-            border-color: var(--color-primary);
-            transform: rotate(15deg);
-        }
-
-        .theme-toggle svg {
-            width: 20px;
-            height: 20px;
-            fill: var(--color-text-secondary);
-        }
-
-        .theme-toggle:hover svg {
-            fill: white;
-        }
-
+        .theme-toggle:hover { background: var(--color-primary); border-color: var(--color-primary); transform: rotate(15deg); }
+        .theme-toggle svg { width: 20px; height: 20px; fill: var(--color-text-secondary); }
+        .theme-toggle:hover svg { fill: white; }
         [data-theme="dark"] .sun-icon { display: block; }
         [data-theme="dark"] .moon-icon { display: none; }
         [data-theme="light"] .sun-icon { display: none; }
@@ -293,54 +171,16 @@
         /* ═══════════════════════════════════════════════════════════
            TIMEZONE / BUTTONS
            ═══════════════════════════════════════════════════════════ */
-        .timezone-info {
-            font-size: var(--font-size-sm);
-            color: var(--color-muted);
-            text-align: center;
-            margin-top: var(--space-lg);
-        }
-
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-md);
-            justify-content: center;
-            margin-top: var(--space-2xl);
-        }
-
+        .timezone-info { font-size: var(--font-size-sm); color: var(--color-muted); text-align: center; margin-top: var(--space-lg); }
+        .btn-group { display: flex; flex-wrap: wrap; gap: var(--space-md); justify-content: center; margin-top: var(--space-2xl); }
         .btn {
-            display: inline-flex;
-            align-items: center;
-            padding: var(--space-sm) var(--space-xl);
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            text-decoration: none;
-            transition: all var(--transition-base);
-            cursor: pointer;
-            border: none;
+            display: inline-flex; align-items: center; padding: var(--space-sm) var(--space-xl); border-radius: var(--radius-md);
+            font-weight: 600; text-decoration: none; transition: all var(--transition-base); cursor: pointer; border: none;
         }
-
-        .btn-primary {
-            background: var(--color-primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--color-primary-hover);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--color-border);
-            color: var(--color-text-primary);
-        }
-
-        .btn-outline:hover {
-            background: var(--color-surface);
-            border-color: var(--color-primary);
-        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-outline { background: transparent; border: 1px solid var(--color-border); color: var(--color-text-primary); }
+        .btn-outline:hover { background: var(--color-surface); border-color: var(--color-primary); }
 
         @media (max-width: 640px) {
             .container { padding: var(--space-md); }
@@ -393,21 +233,14 @@
         </section>
 
         <div class="btn-group">
-            <button class="btn btn-primary" id="appleCalBtn">
-                Add to Apple Calendar
-            </button>
-            <button class="btn btn-outline" id="googleCalBtn">
-                Add to Google Calendar
-            </button>
+            <button class="btn btn-primary" id="appleCalBtn">Add to Apple Calendar</button>
+            <button class="btn btn-outline" id="googleCalBtn">Add to Google Calendar</button>
         </div>
 
-        <p class="timezone-info" id="timezoneDisplay">Detected Timezone: Asia/Kolkata (IST)</p>
+        <p class="timezone-info" id="timezoneDisplay">Detecting Timezone...</p>
     </div>
 
     <script>
-        // ═══════════════════════════════════════════════════════════
-        // THEME LOGIC
-        // ═══════════════════════════════════════════════════════════
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
 
@@ -425,23 +258,16 @@
         if (savedTheme) setTheme(savedTheme);
         else if (window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme('dark');
 
-        // ═══════════════════════════════════════════════════════════
-        // CORE SCHEDULER LOGIC (v2.0 - Apple Calendar Fix)
-        // ═══════════════════════════════════════════════════════════
-        
-        // Timezone Detection
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         document.getElementById('timezoneDisplay').textContent = `Detected Timezone: ${tz}`;
 
-        // Fixed Apple Calendar Button Logic
         document.getElementById('appleCalBtn').addEventListener('click', () => {
             const now = new Date();
             const tomorrow = new Date(now);
             tomorrow.setDate(now.getDate() + 1);
-            
             const formatDate = (d) => d.toISOString().replace(/-|:|\.\d+/g, '');
             
-            const icsLines = [
+            const icsContent = [
                 'BEGIN:VCALENDAR',
                 'VERSION:2.0',
                 'PRODID:-//Claude 2x Planner//EN',
@@ -454,11 +280,10 @@
                 'RRULE:FREQ=DAILY;UNTIL=20250328T235959Z',
                 'END:VEVENT',
                 'END:VCALENDAR'
-            ];
-
-            const icsContent = icsLines.join('\r
+            ].join('\r
 ') + '\r
 ';
+
             const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -470,13 +295,10 @@
             URL.revokeObjectURL(url);
         });
 
-        // Placeholder for Google Calendar (External Link)
         document.getElementById('googleCalBtn').addEventListener('click', () => {
             const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Claude+2x+Window&details=Plan+your+Claude+sessions.';
             window.open(url, '_blank');
         });
-
-        console.log('🚀 Phase 1 Full UI Upgrade Loaded');
     </script>
 </body>
 </html>
