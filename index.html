@@ -1,64 +1,476 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Claude 2x Timer</title>
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #0f0f0f; color: #fff;
-  min-height: 100vh; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; padding: 24px;
-}
-h1 { font-size: 1.1rem; font-weight: 500; color: #888; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
-.clock { font-size: 3.2rem; font-weight: 700; margin-bottom: 4px; }
-.date-label { font-size: 0.85rem; color: #666; margin-bottom: 32px; }
-.status-badge { display: inline-block; padding: 10px 28px; border-radius: 999px; font-size: 1.1rem; font-weight: 700; margin-bottom: 32px; }
-.status-badge.two-x { background: #16a34a; }
-.status-badge.one-x { background: #dc2626; }
-.bar-wrap { width: 100%; max-width: 480px; margin-bottom: 32px; }
-.bar-label { font-size: 0.75rem; color: #555; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
-.bar { position: relative; height: 12px; border-radius: 999px; overflow: hidden; display: flex; }
-.seg { height: 100%; }
-.seg.green { background: #16a34a; }
-.seg.red { background: #dc2626; }
-.bar-indicator { position: absolute; top: -3px; width: 4px; height: 18px; background: #fff; border-radius: 2px; transform: translateX(-50%); transition: left 1s linear; }
-.bar-times { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.7rem; color: #444; }
-.next-card { width: 100%; max-width: 480px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; padding: 20px 24px; }
-.next-title { font-size: 0.7rem; color: #555; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
-.next-countdown { font-size: 2.4rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 4px; }
-.next-countdown.two-x { color: #16a34a; }
-.next-countdown.one-x { color: #dc2626; }
-.next-info { font-size: 0.82rem; color: #666; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude 2x Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #111111;
+            --border: #222222;
+            --text-main: #eeeeee;
+            --text-dim: #888888;
+            --text-muted: #555555;
+            --2x: #14b8a6;
+            --2x-glow: rgba(20, 184, 166, 0.2);
+            --1x: #f59e0b;
+            --1x-glow: rgba(245, 158, 11, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        header { text-align: center; }
+        h1 { font-size: 1.5rem; font-weight: 300; letter-spacing: -0.01em; margin-bottom: 4px; color: var(--text-main); }
+        .subtitle { font-size: 0.85rem; color: var(--text-dim); font-weight: 400; }
+
+        .clock-section { text-align: center; }
+        .clock { font-size: 4rem; font-weight: 700; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; margin-bottom: 8px; }
+        
+        /* Timezone Dropdown */
+        .tz-picker {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            cursor: pointer;
+            position: relative;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .tz-picker:hover { background: var(--card-bg); color: var(--text-main); }
+        .tz-picker select {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; cursor: pointer;
+            appearance: none;
+        }
+
+        /* Status Pill */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 16px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .status-pill.two-x {
+            background: var(--2x-glow);
+            color: var(--2x);
+            border: 1px solid rgba(20, 184, 166, 0.3);
+            box-shadow: 0 0 20px var(--2x-glow);
+            animation: pulse 2s infinite;
+        }
+        .status-pill.one-x {
+            background: var(--1x-glow);
+            color: var(--1x);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(20, 184, 166, 0); } 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); } }
+
+        /* Timeline */
+        .timeline-section { width: 100%; }
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 12px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+        .bar-container { position: relative; height: 18px; border-radius: 9px; background: var(--card-bg); overflow: hidden; display: flex; }
+        .seg { height: 100%; transition: width 0.3s; }
+        .seg.green { background: var(--2x); opacity: 0.8; }
+        .seg.red { background: var(--border); }
+        
+        .now-marker {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: #fff;
+            z-index: 10;
+            transition: left 0.5s linear;
+        }
+        .now-marker::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -3px;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Countdown Card */
+        .main-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 32px;
+            text-align: center;
+        }
+        .card-label { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 12px; }
+        .countdown { font-size: 3rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 8px; letter-spacing: -0.02em; }
+        .countdown.two-x { color: var(--2x); }
+        .countdown.one-x { color: var(--1x); }
+        .card-info { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* Upcoming List */
+        .upcoming-section { width: 100%; }
+        .upcoming-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+        .upcoming-row {
+            background: var(--bg);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .row-left { display: flex; align-items: center; gap: 12px; color: var(--text-dim); }
+        .row-day { font-weight: 500; color: var(--text-main); width: 80px; }
+        .row-time { font-variant-numeric: tabular-nums; }
+        .row-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--2x-glow);
+            color: var(--2x);
+        }
+
+        footer { margin-top: 32px; font-size: 0.7rem; color: var(--text-muted); text-align: center; }
+
+        /* Mobile Adjustments */
+        @media (max-width: 480px) {
+            .clock { font-size: 3.2rem; }
+            .countdown { font-size: 2.5rem; }
+            .main-card { padding: 24px 16px; }
+            .row-day { width: 65px; }
+        }
+
+        /* Tooltip style */
+        .tooltip {
+            position: absolute;
+            background: #fff;
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            pointer-events: none;
+            display: none;
+            z-index: 100;
+            transform: translate(-50%, -100%);
+            margin-top: -10px;
+        }
+    </style>
 </head>
 <body>
-<h1>Claude 2x</h1>
-<div class="clock" id="clock">--:--:--</div>
-<div class="date-label" id="dateLabel">Loading...</div>
-<div class="status-badge" id="statusBadge">--</div>
-<div class="bar-wrap">
-  <div class="bar-label">Today - IST (24 hrs)</div>
-  <div class="bar" id="bar"><div class="bar-indicator" id="indicator"></div></div>
-  <div class="bar-times"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>5:30 PM</span><span>11:30 PM</span><span>12 AM</span></div>
-</div>
-<div class="next-card">
-  <div class="next-title" id="nextTitle">Next window</div>
-  <div class="next-countdown" id="nextCountdown">--:--:--</div>
-  <div class="next-info" id="nextInfo"></div>
-</div>
-<script>
-function getIST(){const n=new Date();return new Date(n.getTime()+n.getTimezoneOffset()*60000+19800000);}
-function is2x(t){const d=t.getDay();if(d===0||d===6)return true;const m=t.getHours()*60+t.getMinutes();return m>=1050&&m<1410;}
-function pad(n){return String(n).padStart(2,'0');}
-function buildBar(){const bar=document.getElementById('bar');const ind=document.getElementById('indicator');bar.innerHTML='';bar.appendChild(ind);const day=getIST().getDay();const segs=(day===0||day===6)?[{c:'green',f:0,t:1440}]:[{c:'red',f:0,t:1050},{c:'green',f:1050,t:1410},{c:'red',f:1410,t:1440}];segs.forEach(s=>{const el=document.createElement('div');el.className='seg '+s.c;el.style.width=((s.t-s.f)/1440*100)+'%';bar.insertBefore(el,ind);});}
-function nextWindow(ist){const day=ist.getDay();const mins=ist.getHours()*60+ist.getMinutes()+ist.getSeconds()/60;const a=is2x(ist);if(a){if(day===0||day===6){const d=(8-day)%7||7;return{secs:((d*1440)-mins)*60,label:'Until weekday 1x - Mon 12:00 am IST',type:'one-x'};}else return{secs:(1410-mins)*60,label:'2x ends at 11:30 pm IST',type:'one-x'};}else{if(day!==0&&day!==6){if(mins<1050)return{secs:(1050-mins)*60,label:'2x starts at 5:30 pm IST',type:'two-x'};else{const nextDay=(day+1)%7;if(nextDay===6||nextDay===0)return{secs:(1440-mins)*60,label:'Weekend 2x starts at midnight IST',type:'two-x'};else return{secs:(1440-mins+1050)*60,label:'2x starts tomorrow at 5:30 pm IST',type:'two-x'};}}return{secs:0,label:'',type:'two-x'};}}
-const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function tick(){const ist=getIST();const h=ist.getHours(),m=ist.getMinutes(),s=ist.getSeconds();document.getElementById('clock').textContent=pad(h)+':'+pad(m)+':'+pad(s);document.getElementById('dateLabel').textContent=DAYS[ist.getDay()]+', '+ist.getDate()+' '+MON[ist.getMonth()]+' '+ist.getFullYear()+' IST';const badge=document.getElementById('statusBadge');const a=is2x(ist);badge.textContent=a?'2x Active':'1x Active';badge.className='status-badge '+(a?'two-x':'one-x');document.getElementById('indicator').style.left=((h*60+m+s/60)/1440*100)+'%';const nw=nextWindow(ist);document.getElementById('nextTitle').textContent=a?'Currently 2x - ends in':'Currently 1x - 2x starts in';const cd=document.getElementById('nextCountdown');const sec=Math.max(0,Math.floor(nw.secs));cd.textContent=pad(Math.floor(sec/3600))+':'+pad(Math.floor((sec%3600)/60))+':'+pad(sec%60);cd.className='next-countdown '+nw.type;document.getElementById('nextInfo').textContent=nw.label;}
-buildBar();tick();setInterval(tick,1000);
-</script>
+    <div class="container" id="mainContainer">
+        <header>
+            <h1>Claude 2x Planner</h1>
+            <div class="subtitle">Know the best time to get more from Claude</div>
+        </header>
+
+        <section class="clock-section">
+            <div class="clock" id="clock">--:--:--</div>
+            <div class="tz-picker" id="tzPicker">
+                <span>Show times for: <strong id="currentCity">Loading...</strong></span> ▾
+                <select id="tzSelect"></select>
+            </div>
+            <br>
+            <div class="status-pill" id="statusPill">
+                <span id="statusIcon">🕐</span> <span id="statusText">Checking...</span>
+            </div>
+        </section>
+
+        <section class="timeline-section">
+            <div class="timeline-header">
+                <span>Timeline</span>
+                <span id="timelineDay">Today</span>
+            </div>
+            <div class="bar-container" id="timelineBar">
+                <div class="now-marker" id="nowMarker"></div>
+            </div>
+            <div class="timeline-labels">
+                <span>12 AM</span>
+                <span>6 AM</span>
+                <span>12 PM</span>
+                <span>6 PM</span>
+                <span>12 AM</span>
+            </div>
+            <div id="boostRange" style="font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-top: 12px;"></div>
+        </section>
+
+        <section class="main-card">
+            <div class="card-label" id="cdLabel">Countdown</div>
+            <div class="countdown" id="countdown">--:--:--</div>
+            <div class="card-info" id="cdInfo">Calculating next window...</div>
+        </section>
+
+        <section class="upcoming-section">
+            <div class="card-label" style="text-align: left; margin-left: 4px;">Next Boost Windows</div>
+            <div class="upcoming-list" id="upcomingList"></div>
+        </section>
+
+        <footer>
+            Times auto-converted from PT & GMT rules · Made by Dhanush
+        </footer>
+    </div>
+
+    <script>
+        const RULES = {
+            endBoost: new Date('2026-03-27T23:59:59Z'),
+            // 2x windows: 5:30 PM - 11:30 PM IST on weekdays (12:00-18:00 UTC)
+            // Weekends: full day 2x
+            is2x: (date) => {
+                const day = date.getUTCDay(); // 0=Sun, 6=Sat
+                if (day === 0 || day === 6) return true;
+                const hours = date.getUTCHours();
+                return hours >= 12 && hours < 18;
+            }
+        };
+
+        const ZONES = [
+            { id: 'detected', name: '📍 Detected' },
+            { id: 'America/Los_Angeles', name: 'San Francisco (PT)' },
+            { id: 'America/New_York', name: 'New York (ET)' },
+            { id: 'Europe/London', name: 'London (GMT)' },
+            { id: 'Europe/Berlin', name: 'Berlin (CET)' },
+            { id: 'Asia/Dubai', name: 'Dubai (GST)' },
+            { id: 'Asia/Kolkata', name: 'Bangalore (IST)' },
+            { id: 'Asia/Singapore', name: 'Singapore (SGT)' },
+            { id: 'Asia/Tokyo', name: 'Tokyo (JST)' },
+            { id: 'Australia/Sydney', name: 'Sydney (AEST)' }
+        ];
+
+        let currentTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const select = document.getElementById('tzSelect');
+        
+        // Init Dropdown
+        ZONES.forEach(z => {
+            const opt = document.createElement('option');
+            opt.value = z.id === 'detected' ? Intl.DateTimeFormat().resolvedOptions().timeZone : z.id;
+            opt.textContent = z.name;
+            select.appendChild(opt);
+        });
+        select.value = currentTz;
+
+        function updateCityLabel() {
+            const zone = ZONES.find(z => (z.id === 'detected' && currentTz === Intl.DateTimeFormat().resolvedOptions().timeZone) || z.id === currentTz);
+            document.getElementById('currentCity').textContent = zone ? zone.name.replace('📍 Detected', 'Local') : 'Custom';
+        }
+
+        select.onchange = (e) => {
+            currentTz = e.target.value;
+            updateCityLabel();
+            renderTimeline();
+            tick();
+        };
+
+        function getLocalTime(tz) {
+            return new Date(new Date().toLocaleString("en-US", {timeZone: tz}));
+        }
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+
+        function renderTimeline() {
+            const bar = document.getElementById('timelineBar');
+            const marker = document.getElementById('nowMarker');
+            // Clear existing segments
+            bar.querySelectorAll('.seg').forEach(s => s.remove());
+            
+            const now = getLocalTime(currentTz);
+            const startOfDay = new Date(now);
+            startOfDay.setHours(0,0,0,0);
+
+            let segments = [];
+            // Sample every 15 mins for the bar
+            for(let i=0; i<1440; i+=15) {
+                const t = new Date(startOfDay.getTime() + i * 60000);
+                const active = RULES.is2x(t);
+                if (segments.length > 0 && segments[segments.length-1].active === active) {
+                    segments[segments.length-1].duration += 15;
+                } else {
+                    segments.push({ active, duration: 15 });
+                }
+            }
+
+            segments.forEach(s => {
+                const el = document.createElement('div');
+                el.className = 'seg ' + (s.active ? 'green' : 'red');
+                el.style.width = (s.duration / 1440 * 100) + '%';
+                bar.appendChild(el);
+            });
+            bar.appendChild(marker);
+
+            // Boost range text
+            if (now.getDay() === 0 || now.getDay() === 6) {
+                document.getElementById('boostRange').textContent = "Full weekend boost active";
+            } else {
+                // Hardcoded IST display for weekday for clarity, converted to local if needed
+                document.getElementById('boostRange').textContent = "Weekday 2x: 5:30 pm – 11:30 pm IST";
+            }
+        }
+
+        function getNextWindows() {
+            const list = [];
+            let check = new Date();
+            // Round to next hour for cleaner list
+            check.setMinutes(0,0,0);
+            
+            while(list.length < 3) {
+                const isNow2x = RULES.is2x(check);
+                if (!isNow2x) {
+                    // Find next start
+                    while(!RULES.is2x(check)) check.setTime(check.getTime() + 1800000); // jump 30m
+                    const start = new Date(check);
+                    while(RULES.is2x(check)) check.setTime(check.getTime() + 1800000);
+                    const end = new Date(check);
+                    list.push({ start, end });
+                } else {
+                    // Currently in one, find the one after this
+                    while(RULES.is2x(check)) check.setTime(check.getTime() + 1800000);
+                    while(!RULES.is2x(check)) check.setTime(check.getTime() + 1800000);
+                }
+            }
+            return list;
+        }
+
+        function tick() {
+            const nowLocal = getLocalTime(currentTz);
+            const nowUTC = new Date();
+            
+            // Clock
+            document.getElementById('clock').textContent = nowLocal.toLocaleTimeString('en-GB', { hour12: false });
+            
+            // Status
+            const active = RULES.is2x(nowUTC);
+            const pill = document.getElementById('statusPill');
+            const icon = document.getElementById('statusIcon');
+            const txt = document.getElementById('statusText');
+            
+            if (active) {
+                pill.className = 'status-pill two-x';
+                icon.textContent = '⚡';
+                txt.textContent = '2x Boosted — Claude is fast';
+            } else {
+                pill.className = 'status-pill one-x';
+                icon.textContent = '🕐';
+                txt.textContent = '1x Mode — Normal speed';
+            }
+
+            // Marker
+            const mins = nowLocal.getHours() * 60 + nowLocal.getMinutes();
+            document.getElementById('nowMarker').style.left = (mins / 1440 * 100) + '%';
+
+            // Countdown
+            let target;
+            if (active) {
+                // Find when 2x ends
+                let findEnd = new Date(nowUTC);
+                while(RULES.is2x(findEnd)) findEnd.setTime(findEnd.getTime() + 1000);
+                target = findEnd;
+                document.getElementById('cdLabel').textContent = "You're in the zone — 2x ends in";
+                document.getElementById('countdown').className = "countdown two-x";
+            } else {
+                // Find when 2x starts
+                let findStart = new Date(nowUTC);
+                while(!RULES.is2x(findStart)) findStart.setTime(findStart.getTime() + 1000);
+                target = findStart;
+                document.getElementById('cdLabel').textContent = "Good time coming up — 2x in";
+                document.getElementById('countdown').className = "countdown one-x";
+            }
+
+            const diff = Math.max(0, Math.floor((target - nowUTC) / 1000));
+            const h = Math.floor(diff / 3600);
+            const m = Math.floor((diff % 3600) / 60);
+            const s = diff % 60;
+            document.getElementById('countdown').textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+            
+            // Next window info
+            const localTarget = new Date(target.toLocaleString("en-US", {timeZone: currentTz}));
+            document.getElementById('cdInfo').textContent = (active ? 'Ends at ' : 'Starts at ') + localTarget.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function renderUpcoming() {
+            const windows = getNextWindows();
+            const container = document.getElementById('upcomingList');
+            container.innerHTML = '';
+            
+            windows.forEach((w, i) => {
+                const s = new Date(w.start.toLocaleString("en-US", {timeZone: currentTz}));
+                const e = new Date(w.end.toLocaleString("en-US", {timeZone: currentTz}));
+                
+                const row = document.createElement('div');
+                row.className = 'upcoming-row';
+                
+                const dayName = s.toLocaleDateString([], {weekday: 'short'});
+                const timeStr = s.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) + ' – ' + e.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+                
+                row.innerHTML = `
+                    <div class="row-left">
+                        <div class="row-day">${dayName}</div>
+                        <div class="row-time">${timeStr}</div>
+                    </div>
+                    ${i === 0 ? '<div class="row-badge">Next up</div>' : ''}
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Init
+        updateCityLabel();
+        renderTimeline();
+        renderUpcoming();
+        tick();
+        setInterval(tick, 1000);
+        setInterval(renderUpcoming, 60000); // Refresh list every min
+    </script>
 </body>
 </html>
