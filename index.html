@@ -5,193 +5,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claude 2x Planner</title>
 
-    <!-- Preconnect to Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* ═══════════════════════════════════════════════════════════
-           DESIGN SYSTEM - CSS VARIABLES
-           ═══════════════════════════════════════════════════════════ */
         :root {
-            /* Color System - Light Mode (WCAG AAA Compliant) */
-            --color-primary: #0F766E;        /* Teal 700 */
-            --color-primary-hover: #0D9488;  /* Teal 600 */
+            --color-primary: #0F766E;
+            --color-primary-hover: #0D9488;
             --color-bg: #FFFFFF;
-            --color-surface: #F8FAFC;       /* Slate 50 */
-            --color-text-primary: #0F172A;  /* Slate 900 */
-            --color-text-secondary: #334155; /* Slate 700 */
-            --color-success: #047857;       /* Emerald 700 */
-            --color-border: #E2E8F0;        /* Slate 200 */
-            --color-accent: #0EA5E9;        /* Sky 500 */
-            --color-muted: #64748B;         /* Slate 500 */
-
-            /* Gradients */
+            --color-surface: #F8FAFC;
+            --color-text-primary: #0F172A;
+            --color-text-secondary: #334155;
+            --color-success: #047857;
+            --color-border: #E2E8F0;
+            --color-accent: #0EA5E9;
+            --color-muted: #64748B;
             --gradient-primary: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
-
-            /* 8pt Grid System */
-            --space-xs: 4px;
-            --space-sm: 8px;
-            --space-md: 16px;
-            --space-lg: 24px;
-            --space-xl: 32px;
-            --space-2xl: 48px;
-
-            /* Border Radius */
-            --radius-sm: 4px;
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --radius-xl: 16px;
-            --radius-full: 9999px;
-
-            /* Box Shadows */
+            --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px; --space-xl: 32px; --space-2xl: 48px;
+            --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px; --radius-full: 9999px;
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-
-            /* Typography Scale */
-            --font-size-sm: 14px;
-            --font-size-base: 16px;
-            --font-size-lg: 18px;
-            --font-size-xl: 24px;
-            --font-size-2xl: 32px;
-
-            /* Transitions */
-            --transition-fast: 100ms ease;
-            --transition-base: 200ms ease;
-            --transition-slow: 300ms ease;
+            --font-size-sm: 14px; --font-size-base: 16px; --font-size-lg: 18px; --font-size-xl: 24px; --font-size-2xl: 32px;
+            --transition-fast: 100ms ease; --transition-base: 200ms ease; --transition-slow: 300ms ease;
         }
 
-        /* Dark Mode Override */
         [data-theme="dark"] {
-            --color-primary: #14B8A6;
-            --color-primary-hover: #2DD4BF;
-            --color-bg: #020617;
-            --color-surface: #0F172A;
-            --color-text-primary: #F8FAFC;
-            --color-text-secondary: #CBD5E1;
-            --color-success: #10B981;
-            --color-border: #334155;
-            --color-accent: #38BDF8;
-            --color-muted: #94A3B8;
-
+            --color-primary: #14B8A6; --color-primary-hover: #2DD4BF;
+            --color-bg: #020617; --color-surface: #0F172A;
+            --color-text-primary: #F8FAFC; --color-text-secondary: #CBD5E1;
+            --color-success: #10B981; --color-border: #334155;
+            --color-accent: #38BDF8; --color-muted: #94A3B8;
             --gradient-primary: linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%);
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.2);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.15);
         }
 
-        /* ═══════════════════════════════════════════════════════════
-           BASE STYLES
-           ═══════════════════════════════════════════════════════════ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: var(--font-size-base);
-            line-height: 1.5;
-            color: var(--color-text-primary);
-            background: var(--color-bg);
-            min-height: 100vh;
-            transition: background-color var(--transition-slow), color var(--transition-slow);
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--color-bg); color: var(--color-text-primary);
+            transition: background var(--transition-slow), color var(--transition-slow);
+            min-height: 100vh; line-height: 1.6;
         }
 
-        .container { width: 100%; max-width: 800px; margin: 0 auto; padding: var(--space-2xl) var(--space-lg); }
+        .container { max-width: 800px; margin: 0 auto; padding: var(--space-2xl) var(--space-lg); }
+        .hero { text-align: center; margin-bottom: var(--space-2xl); animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ═══════════════════════════════════════════════════════════
-           HERO SECTION
-           ═══════════════════════════════════════════════════════════ */
-        .hero { text-align: center; margin-bottom: var(--space-2xl); padding: var(--space-xl) 0; }
         .hero h1 {
-            font-size: clamp(2rem, 5vw, 3rem);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: var(--space-md);
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: clamp(2.5rem, 8vw, 3.5rem); font-weight: 800; letter-spacing: -0.04em; margin-bottom: var(--space-md);
+            background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .hero p { font-size: var(--font-size-lg); color: var(--color-text-secondary); max-width: 500px; margin: 0 auto; }
+        .hero p { font-size: var(--font-size-lg); color: var(--color-text-secondary); max-width: 600px; margin: 0 auto; opacity: 0.9; }
 
-        /* ═══════════════════════════════════════════════════════════
-           STATUS CARDS
-           ═══════════════════════════════════════════════════════════ */
-        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-2xl); }
+        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-2xl); }
         .card {
-            background: var(--color-surface);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-xl);
-            padding: var(--space-lg);
-            box-shadow: var(--shadow-sm);
-            transition: transform var(--transition-base), box-shadow var(--transition-base);
+            background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xl);
+            padding: var(--space-xl); box-shadow: var(--shadow-sm); transition: all var(--transition-base); position: relative; overflow: hidden;
         }
         .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--color-primary); }
-        .badge {
-            display: inline-flex; align-items: center; padding: 4px 12px; border-radius: var(--radius-full);
-            font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-md);
-        }
-        .badge-live { background: rgba(4, 120, 87, 0.1); color: var(--color-success); border: 1px solid rgba(4, 120, 87, 0.2); }
-        .badge-live::before { content: ""; width: 8px; height: 8px; background: var(--color-success); border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* ═══════════════════════════════════════════════════════════
-           TIMELINE
-           ═══════════════════════════════════════════════════════════ */
-        .timeline { position: relative; padding-left: var(--space-2xl); }
+        .badge {
+            display: inline-flex; align-items: center; padding: 6px 14px; border-radius: var(--radius-full);
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--space-md);
+        }
+        .badge-live { background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-live::before { content: ""; width: 8px; height: 8px; background: var(--color-success); border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } 100% { transform: scale(0.95); opacity: 1; } }
+
+        .timeline { position: relative; padding-left: var(--space-2xl); margin-top: var(--space-2xl); }
         .timeline::before { content: ""; position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: var(--color-border); }
-        .timeline-item { position: relative; margin-bottom: var(--space-xl); }
+        .timeline-item { position: relative; margin-bottom: var(--space-xl); animation: slideIn 0.5s ease-out both; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
         .timeline-dot {
-            position: absolute; left: -33px; top: 4px; width: 16px; height: 16px; border-radius: 50%;
+            position: absolute; left: -33px; top: 6px; width: 16px; height: 16px; border-radius: 50%;
             background: var(--color-bg); border: 3px solid var(--color-primary); z-index: 1;
         }
         .timeline-content {
             background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg);
-            padding: var(--space-md); transition: all var(--transition-base);
+            padding: var(--space-lg); transition: border var(--transition-base);
         }
-        .timeline-item.active .timeline-content { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1); }
+        .timeline-item.active .timeline-content { border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.05); }
 
-        /* ═══════════════════════════════════════════════════════════
-           THEME TOGGLE
-           ═══════════════════════════════════════════════════════════ */
-        .theme-toggle {
-            position: fixed; top: var(--space-lg); right: var(--space-lg);
-            background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-full);
-            width: 44px; height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            box-shadow: var(--shadow-sm); transition: all var(--transition-base); z-index: 1000;
-        }
-        .theme-toggle:hover { background: var(--color-primary); border-color: var(--color-primary); transform: rotate(15deg); }
-        .theme-toggle svg { width: 20px; height: 20px; fill: var(--color-text-secondary); }
-        .theme-toggle:hover svg { fill: white; }
-        [data-theme="dark"] .sun-icon { display: block; }
-        [data-theme="dark"] .moon-icon { display: none; }
-        [data-theme="light"] .sun-icon { display: none; }
-        [data-theme="light"] .moon-icon { display: block; }
-
-        /* ═══════════════════════════════════════════════════════════
-           TIMEZONE / BUTTONS
-           ═══════════════════════════════════════════════════════════ */
-        .timezone-info { font-size: var(--font-size-sm); color: var(--color-muted); text-align: center; margin-top: var(--space-lg); }
         .btn-group { display: flex; flex-wrap: wrap; gap: var(--space-md); justify-content: center; margin-top: var(--space-2xl); }
         .btn {
-            display: inline-flex; align-items: center; padding: var(--space-sm) var(--space-xl); border-radius: var(--radius-md);
-            font-weight: 600; text-decoration: none; transition: all var(--transition-base); cursor: pointer; border: none;
+            display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: var(--radius-lg);
+            font-weight: 600; font-size: 15px; cursor: pointer; transition: all var(--transition-base); border: none; text-decoration: none;
         }
-        .btn-primary { background: var(--color-primary); color: white; }
-        .btn-primary:hover { background: var(--color-primary-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .btn-outline { background: transparent; border: 1px solid var(--color-border); color: var(--color-text-primary); }
-        .btn-outline:hover { background: var(--color-surface); border-color: var(--color-primary); }
+        .btn-primary { background: var(--color-primary); color: white; box-shadow: 0 4px 14px 0 rgba(15, 118, 110, 0.3); }
+        .btn-primary:hover { background: var(--color-primary-hover); transform: translateY(-2px); box-shadow: 0 6px 20px 0 rgba(15, 118, 110, 0.4); }
+        .btn-outline { background: transparent; border: 1.5px solid var(--color-border); color: var(--color-text-primary); }
+        .btn-outline:hover { border-color: var(--color-primary); background: var(--color-surface); }
+
+        .theme-toggle {
+            position: fixed; top: var(--space-lg); right: var(--space-lg); width: 48px; height: 48px;
+            border-radius: 50%; background: var(--color-surface); border: 1px solid var(--color-border);
+            display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000;
+            box-shadow: var(--shadow-sm); transition: all var(--transition-base);
+        }
+        .theme-toggle:hover { transform: scale(1.1); border-color: var(--color-primary); color: var(--color-primary); }
+        .theme-toggle svg { width: 22px; height: 22px; fill: currentColor; }
+        [data-theme="dark"] .sun-icon, [data-theme="light"] .moon-icon { display: block; }
+        [data-theme="light"] .sun-icon, [data-theme="dark"] .moon-icon { display: none; }
+
+        .timezone-info { font-size: 13px; color: var(--color-muted); text-align: center; margin-top: var(--space-xl); font-weight: 500; }
 
         @media (max-width: 640px) {
-            .container { padding: var(--space-md); }
-            .hero h1 { font-size: 1.75rem; }
-            .btn-group { flex-direction: column; }
+            .container { padding: var(--space-lg) var(--space-md); }
             .btn { width: 100%; justify-content: center; }
+            .status-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-<body data-theme="light">
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+<body>
+    <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
         <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
         <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
     </button>
@@ -199,105 +131,118 @@
     <div class="container">
         <header class="hero">
             <h1>Claude 2x Planner</h1>
-            <p>Optimize your message limit. We automatically track 5-hour reset windows based on your local time.</p>
+            <p>Master your 5-hour message limits. Our intelligent scheduler tracks every window so you never lose a session.</p>
         </header>
 
         <div class="status-grid">
             <div class="card">
-                <span class="badge badge-live">Live Window</span>
-                <h3>Active Now</h3>
-                <p id="current-window-text">Resetting at 11:30 PM</p>
+                <span class="badge badge-live">Live Now</span>
+                <h3 id="current-title">Active Session</h3>
+                <p id="current-reset" class="text-muted">Calculating reset...</p>
             </div>
             <div class="card">
-                <span class="badge" style="background: rgba(14, 165, 233, 0.1); color: var(--color-accent);">Next Batch</span>
-                <h3>Coming Up</h3>
-                <p id="next-window-text">Starts at 4:30 AM</p>
+                <span class="badge" style="background: rgba(14, 165, 233, 0.1); color: var(--color-accent);">Next Reset</span>
+                <h3 id="next-title">Upcoming</h3>
+                <p id="next-start" class="text-muted">Waiting for data...</p>
             </div>
         </div>
 
-        <section class="timeline">
-            <div class="timeline-item active">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                    <h4>Current Window</h4>
-                    <p class="text-sm">Ends in 2 hours 14 mins</p>
-                </div>
-            </div>
-            <div class="timeline-item">
-                <div class="timeline-dot" style="border-color: var(--color-border);"></div>
-                <div class="timeline-content">
-                    <h4>Next Window</h4>
-                    <p class="text-sm">Scheduled for Tomorrow, 4:30 AM</p>
-                </div>
-            </div>
+        <section class="timeline" id="timeline-container">
+            <!-- Dynamic items -->
         </section>
 
         <div class="btn-group">
             <button class="btn btn-primary" id="appleCalBtn">Add to Apple Calendar</button>
-            <button class="btn btn-outline" id="googleCalBtn">Add to Google Calendar</button>
+            <button class="btn btn-outline" id="googleCalBtn">Google Calendar</button>
         </div>
 
-        <p class="timezone-info" id="timezoneDisplay">Detecting Timezone...</p>
+        <div class="timezone-info" id="tzDisplay">Detected: Local Timezone</div>
     </div>
 
     <script>
+        // --- THEME ---
         const themeToggle = document.getElementById('themeToggle');
-        const body = document.body;
+        const updateTheme = (t) => {
+            document.documentElement.setAttribute('data-theme', t);
+            localStorage.setItem('claude_theme', t);
+        };
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            updateTheme(isDark ? 'light' : 'dark');
+        });
+        const savedTheme = localStorage.getItem('claude_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        updateTheme(savedTheme);
 
-        function setTheme(theme) {
-            body.setAttribute('data-theme', theme);
-            localStorage.setItem('claude2x_theme', theme);
+        // --- SCHEDULER ---
+        const INTERVAL_HOURS = 5;
+        const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        document.getElementById('tzDisplay').textContent = `Timezone: ${TZ}`;
+
+        function getWindows() {
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const windows = [];
+            for (let i = 0; i < 24; i += INTERVAL_HOURS) {
+                const w = new Date(startOfDay.getTime() + i * 3600000);
+                windows.push(w);
+            }
+            // Add next day's first window
+            windows.push(new Date(startOfDay.getTime() + 24 * 3600000));
+            return windows;
         }
 
-        themeToggle.addEventListener('click', () => {
-            const current = body.getAttribute('data-theme');
-            setTheme(current === 'dark' ? 'light' : 'dark');
-        });
+        function updateUI() {
+            const now = new Date();
+            const windows = getWindows();
+            let currentIdx = windows.findIndex((w, i) => now >= w && now < (windows[i+1] || new Date(w.getTime() + 5*3600000)));
+            if (currentIdx === -1) currentIdx = 0;
 
-        const savedTheme = localStorage.getItem('claude2x_theme');
-        if (savedTheme) setTheme(savedTheme);
-        else if (window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme('dark');
+            const current = windows[currentIdx];
+            const next = windows[currentIdx + 1];
+            const resetTime = new Date(current.getTime() + INTERVAL_HOURS * 3600000);
 
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        document.getElementById('timezoneDisplay').textContent = `Detected Timezone: ${tz}`;
+            document.getElementById('current-reset').textContent = `Resets at ${resetTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            document.getElementById('next-start').textContent = `Starts at ${next.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
 
+            const timeline = document.getElementById('timeline-container');
+            timeline.innerHTML = windows.slice(currentIdx, currentIdx + 3).map((w, i) => `
+                <div class="timeline-item ${i === 0 ? 'active' : ''}" style="animation-delay: ${i*0.1}s">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h4>${i === 0 ? 'Current Window' : 'Next Window'}</h4>
+                        <p class="text-sm">${w.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} — ${(new Date(w.getTime() + 5*3600000)).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        updateUI();
+        setInterval(updateUI, 60000);
+
+        // --- CALENDAR ---
         document.getElementById('appleCalBtn').addEventListener('click', () => {
             const now = new Date();
-            const tomorrow = new Date(now);
-            tomorrow.setDate(now.getDate() + 1);
-            const formatDate = (d) => d.toISOString().replace(/-|:|\.\d+/g, '');
-            
-            const icsContent = [
-                'BEGIN:VCALENDAR',
-                'VERSION:2.0',
-                'PRODID:-//Claude 2x Planner//EN',
-                'BEGIN:VEVENT',
-                `DTSTAMP:${formatDate(now)}`,
-                `DTSTART:${formatDate(now)}`,
-                `DTEND:${formatDate(tomorrow)}`,
-                'SUMMARY:Claude 2x Limit Tracker',
-                'DESCRIPTION:Plan your Claude sessions.',
-                'RRULE:FREQ=DAILY;UNTIL=20250328T235959Z',
-                'END:VEVENT',
-                'END:VCALENDAR'
+            const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+            const f = (d) => d.toISOString().replace(/-|:|\.\d+/g, '');
+            const ics = [
+                'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Claude Planner//EN',
+                'BEGIN:VEVENT', `DTSTAMP:${f(now)}`, `DTSTART:${f(now)}`, `DTEND:${f(end)}`,
+                'SUMMARY:Claude 2x Limit Tracker', 'DESCRIPTION:5-hour reset window tracker.',
+                'RRULE:FREQ=DAILY;UNTIL=20250328T235959Z', 'END:VEVENT', 'END:VCALENDAR'
             ].join('\r
 ') + '\r
 ';
 
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
             const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'claude-planner.ics';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'claude-planner.ics';
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a); URL.revokeObjectURL(url);
         });
 
         document.getElementById('googleCalBtn').addEventListener('click', () => {
-            const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Claude+2x+Window&details=Plan+your+Claude+sessions.';
-            window.open(url, '_blank');
+            window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Claude+2x+Tracker&details=Check+message+limits', '_blank');
         });
     </script>
 </body>
