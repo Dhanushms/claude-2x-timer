@@ -7,10 +7,31 @@ import {
   Bell,
   BellOff,
   CalendarDays,
-  Zap,
   ChevronDown,
   ExternalLink,
 } from "lucide-react";
+
+// ─── D. Brand Mark ────────────────────────────────────────────────────────────
+function DLogo({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        fill="currentColor"
+        d="M3 3H8.5C17 3 20.5 7 20.5 12C20.5 17 17 21 8.5 21H3V3Z
+           M7 7H8.5C14.5 7 16.5 9.2 16.5 12C16.5 14.8 14.5 17 8.5 17H7V7Z"
+      />
+      <circle cx="21.5" cy="21.5" r="2.5" fill="currentColor" />
+    </svg>
+  );
+}
 import {
   is2xActive,
   isBoostActive,
@@ -187,7 +208,7 @@ function FloatingV2Pill({ inPeriod }: { inPeriod: boolean }) {
   return (
     <div
       className={`
-        fixed bottom-6 left-1/2 -translate-x-1/2 z-50
+        fixed bottom-6 inset-x-4 z-50 flex justify-center pointer-events-none
         transition-all duration-400 ease-out
         ${leaving ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0 animate-in slide-in-from-bottom duration-500"}
       `}
@@ -195,12 +216,14 @@ function FloatingV2Pill({ inPeriod }: { inPeriod: boolean }) {
       aria-label="V2 early access"
     >
       <div className={`
-        flex items-center gap-3 pl-4 pr-3 py-2.5
+        pointer-events-auto
+        flex items-center gap-2.5 pl-4 pr-3 py-2.5
         rounded-full
         bg-zinc-900/90 dark:bg-zinc-900/95
         backdrop-blur-xl
         border
         shadow-[0_8px_32px_rgba(0,0,0,0.35)]
+        max-w-full
         ${isUrgent
           ? "border-violet-500/50 shadow-[0_8px_32px_rgba(124,58,237,0.25),0_0_0_1px_rgba(124,58,237,0.15)]"
           : "border-zinc-700/60"
@@ -208,7 +231,7 @@ function FloatingV2Pill({ inPeriod }: { inPeriod: boolean }) {
       `}>
         {/* Icon */}
         <span className="w-6 h-6 rounded-full bg-violet-600 flex items-center justify-center shrink-0">
-          <Zap className="w-3.5 h-3.5 text-white" fill="white" />
+          <DLogo className="w-3.5 h-3.5 text-white" />
         </span>
 
         {/* Copy */}
@@ -219,7 +242,7 @@ function FloatingV2Pill({ inPeriod }: { inPeriod: boolean }) {
             </span>
           )}
           <p className="text-sm font-semibold text-zinc-100 whitespace-nowrap">
-            {isUrgent ? "Promo ending — grab early access" : "V2 is coming — be first in"}
+            {isUrgent ? "Promo ending — early access" : "V2 is coming — be first"}
           </p>
         </div>
 
@@ -795,7 +818,7 @@ export default function ControlPanel() {
           {/* ── App header ── */}
           <div className="flex items-start gap-2.5 px-0.5 mb-1">
             <div className="w-7 h-7 rounded-xl bg-emerald-600 dark:bg-emerald-500 flex items-center justify-center shadow-sm shrink-0 mt-0.5">
-              <Zap className="w-4 h-4 text-white" fill="white" />
+              <DLogo className="w-4 h-4 text-white" />
             </div>
             <div>
               <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 leading-tight">

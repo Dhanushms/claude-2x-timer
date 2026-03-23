@@ -21,6 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
+        {/* SVG favicon — works in all modern browsers */}
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon.svg" />
         {/* Set theme before React hydrates — prevents flash */}
         <script
           dangerouslySetInnerHTML={{
