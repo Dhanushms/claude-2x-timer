@@ -2,10 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Checkmark SVG draw ─────────────────────────────────────────────────── */
 @keyframes dash {
   to { stroke-dashoffset: 0; }
 }
 
+/* ── Entrance animations (used by animate-in utility) ───────────────────── */
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -21,12 +23,70 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-in { animation-fill-mode: both; }
-.fade-in    { animation-name: fade-in; }
-.zoom-in-95 { animation-name: zoom-in-95; }
-.slide-in-from-top-1 { animation-name: slide-in-from-top-1; }
-.duration-200 { animation-duration: 200ms; }
-.duration-300 { animation-duration: 300ms; }
+@keyframes slide-up-from-bottom {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-from-bottom {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in             { animation-fill-mode: both; }
+.fade-in                { animation-name: fade-in; }
+.zoom-in-95             { animation-name: zoom-in-95; }
+.slide-in-from-top-1    { animation-name: slide-in-from-top-1; }
+.slide-up-from-bottom   { animation-name: slide-up-from-bottom; }
+.slide-in-from-bottom   { animation-name: slide-in-from-bottom; }
+.duration-200           { animation-duration: 200ms; }
+.duration-300           { animation-duration: 300ms; }
+.duration-500           { animation-duration: 500ms; }
+.duration-700           { animation-duration: 700ms; }
+
+/* ── Ambient blob pulse (slow breathe for background glows) ─────────────── */
+@keyframes blob-drift {
+  0%, 100% { transform: scale(1)   translate(0px,   0px);   opacity: 0.55; }
+  33%       { transform: scale(1.06) translate(12px, -18px); opacity: 0.70; }
+  66%       { transform: scale(0.95) translate(-10px, 10px); opacity: 0.50; }
+}
+
+@keyframes blob-drift-alt {
+  0%, 100% { transform: scale(1)   translate(0px,  0px);   opacity: 0.45; }
+  33%       { transform: scale(0.94) translate(-14px, 16px); opacity: 0.60; }
+  66%       { transform: scale(1.08) translate(10px, -12px); opacity: 0.40; }
+}
+
+/* Top studio-light ray fade */
+@keyframes ray-pulse {
+  0%, 100% { opacity: 0.25; }
+  50%       { opacity: 0.55; }
+}
+
+.blob-violet  { animation: blob-drift     12s ease-in-out infinite; }
+.blob-emerald { animation: blob-drift-alt 15s ease-in-out infinite; }
+.ray-pulse    { animation: ray-pulse       8s ease-in-out infinite; }
+
+/* ── V2 card scroll-reveal (JS adds .is-visible) ────────────────────────── */
+.v2-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1),
+              transform 0.6s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.6s ease;
+}
+.v2-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Ring pulse on V2 card reveal */
+@keyframes ring-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(124,58,237,0.35); }
+  70%  { box-shadow: 0 0 0 10px rgba(124,58,237,0);   }
+  100% { box-shadow: 0 0 0 0   rgba(124,58,237,0);    }
+}
+.v2-reveal.is-visible { animation: ring-pulse 1s ease-out 0.5s 1; }
 
 @layer base {
   html {
@@ -41,7 +101,7 @@
   }
 
   *:focus-visible {
-    @apply outline-none ring-2 ring-emerald-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-900;
+    @apply outline-none ring-2 ring-violet-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-900;
   }
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   Sun,
   Moon,
@@ -124,6 +124,130 @@ function playSuccessChime() {
       osc.stop(ctx.currentTime + i * 0.12 + 0.5);
     });
   } catch { /* silently ignore if AudioContext unavailable */ }
+}
+
+// ─── ScrollReveal ─────────────────────────────────────────────────────────────
+// Adds .is-visible when the child enters the viewport (one-shot).
+
+function ScrollReveal({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { el.classList.add("is-visible"); obs.disconnect(); } },
+      { threshold: 0.15 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return <div ref={ref} className="v2-reveal">{children}</div>;
+}
+
+// ─── FloatingV2Pill ───────────────────────────────────────────────────────────
+// Strategy A: appears after 20 s idle OR immediately within 3 days of promo end.
+// Disappears if already subscribed or dismissed.
+
+const PROMO_END_DATE = new Date("2026-03-28T23:59:59Z");
+const THREE_DAYS_BEFORE = new Date("2026-03-25T00:00:00Z");
+
+function FloatingV2Pill({ inPeriod }: { inPeriod: boolean }) {
+  const [visible, setVisible] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+
+  // Days remaining string for urgency badge
+  const daysLeft = Math.max(0, Math.ceil((PROMO_END_DATE.getTime() - Date.now()) / 86_400_000));
+  const isUrgent = Date.now() >= THREE_DAYS_BEFORE.getTime() && inPeriod;
+
+  useEffect(() => {
+    // Never show if already subscribed or previously dismissed
+    if (localStorage.getItem("cp_subscribed") === "1") return;
+    if (localStorage.getItem("cp_pill_dismissed") === "1") return;
+
+    const delay = isUrgent ? 1500 : 20_000; // urgent = show fast; normal = 20 s
+    const t = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(t);
+  }, [isUrgent]);
+
+  function dismiss() {
+    setLeaving(true);
+    setTimeout(() => { setVisible(false); setLeaving(false); }, 400);
+    localStorage.setItem("cp_pill_dismissed", "1");
+  }
+
+  function scrollToV2() {
+    document.getElementById("v2-section")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    dismiss();
+  }
+
+  if (!visible) return null;
+
+  return (
+    <div
+      className={`
+        fixed bottom-6 left-1/2 -translate-x-1/2 z-50
+        transition-all duration-400 ease-out
+        ${leaving ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0 animate-in slide-in-from-bottom duration-500"}
+      `}
+      role="complementary"
+      aria-label="V2 early access"
+    >
+      <div className={`
+        flex items-center gap-3 pl-4 pr-3 py-2.5
+        rounded-full
+        bg-zinc-900/90 dark:bg-zinc-900/95
+        backdrop-blur-xl
+        border
+        shadow-[0_8px_32px_rgba(0,0,0,0.35)]
+        ${isUrgent
+          ? "border-violet-500/50 shadow-[0_8px_32px_rgba(124,58,237,0.25),0_0_0_1px_rgba(124,58,237,0.15)]"
+          : "border-zinc-700/60"
+        }
+      `}>
+        {/* Icon */}
+        <span className="w-6 h-6 rounded-full bg-violet-600 flex items-center justify-center shrink-0">
+          <Zap className="w-3.5 h-3.5 text-white" fill="white" />
+        </span>
+
+        {/* Copy */}
+        <div className="flex items-center gap-2">
+          {isUrgent && (
+            <span className="text-[10px] font-bold uppercase tracking-widest text-violet-400 bg-violet-500/15 border border-violet-500/25 px-2 py-0.5 rounded-full">
+              {daysLeft}d left
+            </span>
+          )}
+          <p className="text-sm font-semibold text-zinc-100 whitespace-nowrap">
+            {isUrgent ? "Promo ending — grab early access" : "V2 is coming — be first in"}
+          </p>
+        </div>
+
+        {/* CTA arrow */}
+        <button
+          onClick={scrollToV2}
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-all duration-200 active:scale-95 shrink-0"
+          aria-label="Scroll to V2 signup"
+        >
+          Sign up
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+          </svg>
+        </button>
+
+        {/* Dismiss × */}
+        <button
+          onClick={dismiss}
+          className="w-6 h-6 flex items-center justify-center rounded-full text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700/60 transition-all duration-150 shrink-0"
+          aria-label="Dismiss"
+        >
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // ─── PostPromoCard ───────────────────────────────────────────────────────────
@@ -638,8 +762,34 @@ export default function ControlPanel() {
         )}
       </button>
 
-      {/* Page — gradient background gives glass something to blur against */}
-      <div className="min-h-dvh bg-gradient-to-br from-zinc-100 via-zinc-200/60 to-zinc-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 flex flex-col items-center px-4 py-10 pb-16">
+      {/* ── Ambient light sculpture (fixed, behind everything) ── */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden>
+        {/* Violet bloom — top-left */}
+        <div
+          className="blob-violet absolute -top-40 -left-40 w-[560px] h-[560px] rounded-full
+                     bg-violet-600/25 dark:bg-violet-600/30 blur-[130px]"
+        />
+        {/* Emerald bloom — bottom-right */}
+        <div
+          className="blob-emerald absolute -bottom-48 -right-48 w-[480px] h-[480px] rounded-full
+                     bg-emerald-500/15 dark:bg-emerald-500/20 blur-[110px]"
+        />
+        {/* Studio-light ray — top centre */}
+        <div
+          className="ray-pulse absolute top-0 left-1/2 -translate-x-1/2
+                     w-[1px] h-56 bg-gradient-to-b from-violet-400/50 to-transparent"
+        />
+        <div
+          className="ray-pulse absolute -top-20 left-1/2 -translate-x-1/2
+                     w-48 h-48 rounded-full bg-violet-500/10 blur-[50px]"
+          style={{ animationDelay: "1s" }}
+        />
+        {/* Subtle dark vignette overlay for depth */}
+        <div className="absolute inset-0 bg-radial-[ellipse_at_center] from-transparent to-zinc-950/20 dark:to-zinc-950/50" />
+      </div>
+
+      {/* Page */}
+      <div className="min-h-dvh flex flex-col items-center px-4 py-10 pb-32">
         <div className="w-full max-w-xl flex flex-col gap-3">
 
           {/* ── App header ── */}
@@ -1045,8 +1195,12 @@ export default function ControlPanel() {
             </div>
           </Panel>
 
-          {/* ── Post-promo / V2 waitlist card ── */}
-          <PostPromoCard inPeriod={inPeriod} mounted={mounted} />
+          {/* ── Post-promo / V2 waitlist card — scroll-reveal wrapper ── */}
+          <ScrollReveal>
+            <div id="v2-section">
+              <PostPromoCard inPeriod={inPeriod} mounted={mounted} />
+            </div>
+          </ScrollReveal>
 
           {/* ── Footer ── */}
           <p className="text-center text-xs text-zinc-500 dark:text-zinc-500 py-10">
@@ -1066,6 +1220,9 @@ export default function ControlPanel() {
           </p>
         </div>
       </div>
+
+      {/* ── Floating V2 pill (Strategy A) ── */}
+      {mounted && <FloatingV2Pill inPeriod={inPeriod} />}
     </>
   );
 }
