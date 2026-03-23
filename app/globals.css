@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-zinc-100 dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 min-h-dvh;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-emerald-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-900;
+  }
+}
+
+@layer utilities {
+  .tabular-clock {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
