@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 const RESEND_API_KEY = process.env.RESEND_API_KEY!;
 const AUDIENCE_ID    = process.env.RESEND_AUDIENCE_ID!;
 
-// Using Resend's shared domain until dhanushms.com is verified in Resend → Domains
-const FROM_EMAIL = "Claude Planner <onboarding@resend.dev>";
+// dhanushms.com is verified in Resend — sending from your own domain
+const FROM_EMAIL = "Dhanush @ Claude Planner <hello@dhanushms.com>";
 
 export async function POST(req: NextRequest) {
   try {
