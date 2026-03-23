@@ -27,14 +27,18 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    // 422 = already exists — still send the confirmation
-    if (!contactRes.ok && contactRes.status !== 422) {
+    // 422 = contact already exists in this audience
+    if (contactRes.status === 422) {
+      return NextResponse.json({ alreadySubscribed: true });
+    }
+
+    if (!contactRes.ok) {
       const err = await contactRes.json();
       console.error("Resend contact error:", err);
       return NextResponse.json({ error: "Could not save your email. Try again." }, { status: 500 });
     }
 
-    // 2. Send confirmation email
+    // 2. Send confirmation email (only for new contacts)
     const emailRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -101,7 +105,7 @@ export async function POST(req: NextRequest) {
       // Contact was saved — still return success so UX isn't broken
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, newContact: true });
   } catch (err) {
     console.error("Subscribe error:", err);
     return NextResponse.json({ error: "Something went wrong." }, { status: 500 });

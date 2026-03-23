@@ -130,10 +130,17 @@ function playSuccessChime() {
 
 function PostPromoCard({ inPeriod, mounted }: { inPeriod: boolean; mounted: boolean }) {
   const [email, setEmail]       = useState("");
-  const [status, setStatus]     = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus]     = useState<"idle" | "loading" | "success" | "duplicate" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
   const promoEnded = mounted && !inPeriod;
+
+  // On mount: restore subscribed state from localStorage so form never re-appears
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("cp_subscribed") === "1") {
+      setStatus("success");
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,7 +154,17 @@ function PostPromoCard({ inPeriod, mounted }: { inPeriod: boolean; mounted: bool
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong.");
+
+      if (data.alreadySubscribed) {
+        // Already in the audience — show friendly duplicate message, remember locally
+        localStorage.setItem("cp_subscribed", "1");
+        setStatus("duplicate");
+        setEmail("");
+        return;
+      }
+
       playSuccessChime();
+      localStorage.setItem("cp_subscribed", "1");
       setStatus("success");
       setEmail("");
     } catch (err: unknown) {
@@ -185,7 +202,7 @@ function PostPromoCard({ inPeriod, mounted }: { inPeriod: boolean; mounted: bool
     );
   }
 
-  // ── After promo: full ended card ───────────────────────────────────────────
+  // ── After promo: full ended card ─────────────────────────────────────────
   return (
     <Panel className="overflow-hidden">
       <div className="bg-zinc-100 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-700/50 px-6 py-3 flex items-center gap-3">
@@ -233,7 +250,7 @@ function EmailForm({
 }: {
   email: string;
   setEmail: (v: string) => void;
-  status: "idle" | "loading" | "success" | "error";
+  status: "idle" | "loading" | "success" | "duplicate" | "error";
   errorMsg: string;
   onSubmit: (e: React.FormEvent) => void;
 }) {
@@ -242,7 +259,6 @@ function EmailForm({
   if (status === "success") {
     return (
       <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-emerald-600/10 dark:bg-emerald-500/10 border border-emerald-600/20 dark:border-emerald-500/20 animate-in fade-in zoom-in-95 duration-300">
-        {/* Animated checkmark */}
         <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
           <path className="[stroke-dasharray:30] [stroke-dashoffset:30] animate-[dash_0.4s_ease-out_0.1s_forwards]" d="M4.5 12.75l6 6 9-13.5" />
         </svg>
@@ -252,6 +268,24 @@ function EmailForm({
           </p>
           <p className="text-[10px] text-emerald-600/60 dark:text-emerald-500/60 mt-0.5">
             Confirmation email on its way.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "duplicate") {
+    return (
+      <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 animate-in fade-in zoom-in-95 duration-300">
+        <svg className="w-4 h-4 text-zinc-500 dark:text-zinc-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+        </svg>
+        <div>
+          <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+            You&apos;re already on the list.
+          </p>
+          <p className="text-[10px] text-zinc-500 dark:text-zinc-500 mt-0.5">
+            We&apos;ll reach out when V2 is ready.
           </p>
         </div>
       </div>
