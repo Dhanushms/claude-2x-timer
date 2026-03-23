@@ -104,6 +104,159 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ─── PostPromoCard ───────────────────────────────────────────────────────────
+
+function PostPromoCard({ inPeriod, mounted }: { inPeriod: boolean; mounted: boolean }) {
+  const [email, setEmail]       = useState("");
+  const [status, setStatus]     = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const promoEnded = mounted && !inPeriod;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("loading");
+    setErrorMsg("");
+    try {
+      const res  = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+      setStatus("success");
+      setEmail("");
+    } catch (err: unknown) {
+      setStatus("error");
+      setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
+    }
+  };
+
+  // During promo: compact V2 teaser strip
+  if (!promoEnded) {
+    return (
+      <Panel className="overflow-hidden">
+        <div className="px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-500 mb-1">
+              Coming soon
+            </p>
+            <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 leading-snug">
+              Claude 2x Planner V2 is in development
+            </p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+              A smarter Claude companion — beyond the promo.
+            </p>
+          </div>
+          <EmailForm
+            email={email} setEmail={setEmail}
+            status={status} errorMsg={errorMsg}
+            onSubmit={handleSubmit} compact
+          />
+        </div>
+      </Panel>
+    );
+  }
+
+  // After promo: full ended card
+  return (
+    <Panel className="overflow-hidden">
+      {/* Expired banner */}
+      <div className="bg-zinc-100 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-700/50 px-6 py-3 flex items-center gap-3">
+        <span className="w-2 h-2 rounded-full bg-zinc-400 dark:bg-zinc-500 shrink-0" />
+        <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+          The March 2026 2× promotion ended on March 28 — Claude usage is back to normal.
+        </p>
+      </div>
+
+      <div className="px-6 py-8 flex flex-col items-center text-center gap-6">
+        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-600/30 dark:border-emerald-500/20 bg-emerald-600/10 dark:bg-emerald-500/10 text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-500">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          V2 in development
+        </span>
+
+        <div>
+          <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
+            Claude 2x Planner V2 is coming
+          </h2>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 max-w-xs leading-relaxed">
+            A smarter Claude companion — beyond just the promo window. Usage insights,
+            streak tracking, and alerts for future promotions. Be first to know.
+          </p>
+        </div>
+
+        <EmailForm
+          email={email} setEmail={setEmail}
+          status={status} errorMsg={errorMsg}
+          onSubmit={handleSubmit} compact={false}
+        />
+
+        <p className="text-[10px] text-zinc-400 dark:text-zinc-600">
+          No spam. One email when V2 launches or the next Claude promo drops.
+        </p>
+      </div>
+    </Panel>
+  );
+}
+
+// ─── EmailForm ────────────────────────────────────────────────────────────────
+
+function EmailForm({
+  email, setEmail, status, errorMsg, onSubmit, compact,
+}: {
+  email: string;
+  setEmail: (v: string) => void;
+  status: "idle" | "loading" | "success" | "error";
+  errorMsg: string;
+  onSubmit: (e: React.FormEvent) => void;
+  compact: boolean;
+}) {
+  if (status === "success") {
+    return (
+      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-600/10 dark:bg-emerald-500/10 border border-emerald-600/20 dark:border-emerald-500/20">
+        <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+        <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-500">
+          You&apos;re on the list — check your inbox!
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={onSubmit}
+      className={compact
+        ? "flex gap-2 w-full sm:w-auto"
+        : "flex flex-col sm:flex-row gap-2 w-full max-w-sm"
+      }
+    >
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="your@email.com"
+        required
+        disabled={status === "loading"}
+        className="flex-1 bg-white dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 text-sm rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 transition-all duration-200 disabled:opacity-50"
+        aria-label="Email address"
+      />
+      <button
+        type="submit"
+        disabled={status === "loading" || !email}
+        className="shrink-0 px-5 py-2.5 rounded-xl bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-700 dark:hover:bg-emerald-600 text-white text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+      >
+        {status === "loading" ? "…" : "Notify me"}
+      </button>
+      {status === "error" && (
+        <p className="text-xs text-red-500 mt-1">{errorMsg}</p>
+      )}
+    </form>
+  );
+}
+
 // ─── Status Pill ─────────────────────────────────────────────────────────────
 
 function StatusPill({
@@ -790,6 +943,9 @@ export default function ControlPanel() {
               </a>
             </div>
           </Panel>
+
+          {/* ── Post-promo / V2 waitlist card ── */}
+          <PostPromoCard inPeriod={inPeriod} mounted={mounted} />
 
           {/* ── Footer ── */}
           <p className="text-center text-xs text-zinc-500 dark:text-zinc-500 py-10">
